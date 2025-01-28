@@ -9,5 +9,4 @@ public class HoneycombsApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(HoneycombsApplication.class, args);
 	}
-
 }
