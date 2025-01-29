@@ -1,5 +1,7 @@
 package com.albiosz.honeycombs;
 
+import com.albiosz.honeycombs.game.Game;
+import com.albiosz.honeycombs.game.GameRepository;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -11,16 +13,20 @@ public class DBConfig {
 
 	@Bean
 	CommandLineRunner setUpDatabase(
-			UserRepository userRepository
+			UserRepository userRepo,
+			GameRepository gameRepo
 	) {
 		return args -> {
 			User albert = new User("email@email.com", "password", "nickname");
 
-			User createdUser = userRepository.save(albert);
+			User createdUser = userRepo.save(albert);
+			System.out.println(createdUser);
 
-			String email = createdUser.getEmail();
-			User foundUser = userRepository.findById(createdUser.getId()).orElseThrow();
-			System.out.println(foundUser);
+			Game game = new Game();
+
+			Game createdGame = gameRepo.save(game);
+
+			System.out.println(createdGame);
 		};
 	}
 }
