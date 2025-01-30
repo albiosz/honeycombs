@@ -1,10 +1,14 @@
 package com.albiosz.honeycombs.user;
 
+import com.albiosz.honeycombs.usergame.UserGame;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -50,9 +54,20 @@ public class User {
 	)
 	private String nickname;
 
+	@OneToMany(
+			mappedBy = "user", // it is a field in the UserGame class
+			orphanRemoval = false, // when a user is removed, all the userGames stay
+			cascade = {CascadeType.PERSIST, CascadeType.REMOVE}
+	)
+	private List<UserGame> userGames = new ArrayList<>();
+
 	public User(String email, String password, String nickname) {
 		this.email = email;
 		this.password = password;
 		this.nickname = nickname;
+	}
+
+	public void addUserToGame(UserGame userGame) {
+		this.userGames.add(userGame);
 	}
 }

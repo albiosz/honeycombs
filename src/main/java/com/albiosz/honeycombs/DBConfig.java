@@ -4,29 +4,36 @@ import com.albiosz.honeycombs.game.Game;
 import com.albiosz.honeycombs.game.GameRepository;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import com.albiosz.honeycombs.usergame.UserGame;
+import com.albiosz.honeycombs.usergame.UserGameRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
 
-@Configuration
+@Service
 public class DBConfig {
 
-	@Bean
-	CommandLineRunner setUpDatabase(
+	private final UserRepository userRepo;
+	private final GameRepository gameRepo;
+
+	public DBConfig(
 			UserRepository userRepo,
-			GameRepository gameRepo
-	) {
-		return args -> {
-			User albert = new User("email@email.com", "password", "nickname");
+			GameRepository gameRepo,
+			UserGameRepository userGameRepo) {
+		this.userRepo = userRepo;
+		this.gameRepo = gameRepo;
+	}
 
-			User createdUser = userRepo.save(albert);
-			System.out.println(createdUser);
+	@Transactional
+	public void initDB() {
+		User user = new User("email@email.com", "password", "nickname");
+		User createdUser = userRepo.save(user);
 
-			Game game = new Game();
+		Game game = new Game();
+		Game createdGame = gameRepo.save(game);
 
-			Game createdGame = gameRepo.save(game);
+		createdUser.addUserToGame(new UserGame(createdUser, createdGame));
+		createdUser.setEmail("new@email.com");
 
-			System.out.println(createdGame);
-		};
+		System.out.println("User: " + createdUser);
 	}
 }
