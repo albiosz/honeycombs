@@ -2,6 +2,7 @@ package com.albiosz.honeycombs;
 
 import com.albiosz.honeycombs.game.Game;
 import com.albiosz.honeycombs.game.GameRepository;
+import com.albiosz.honeycombs.turn.Turn;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
 import com.albiosz.honeycombs.usergame.UserGame;
@@ -17,8 +18,8 @@ public class DBConfig {
 
 	public DBConfig(
 			UserRepository userRepo,
-			GameRepository gameRepo,
-			UserGameRepository userGameRepo) {
+			GameRepository gameRepo
+	) {
 		this.userRepo = userRepo;
 		this.gameRepo = gameRepo;
 	}
@@ -31,7 +32,16 @@ public class DBConfig {
 		Game game = new Game();
 		Game createdGame = gameRepo.save(game);
 
-		createdUser.addUserToGame(new UserGame(createdUser, createdGame));
+
+		Turn turn1 = new Turn(5);
+		Turn turn2 = new Turn(6);
+
+		UserGame userGame = new UserGame(createdUser, createdGame);
+		userGame.addTurn(turn1);
+		userGame.addTurn(turn2);
+
+		createdUser.addUserToGame(userGame);
+
 		createdUser.setEmail("new@email.com");
 
 		System.out.println("User: " + createdUser);

@@ -1,11 +1,14 @@
 package com.albiosz.honeycombs.usergame;
 
 import com.albiosz.honeycombs.game.Game;
+import com.albiosz.honeycombs.turn.Turn;
 import com.albiosz.honeycombs.user.User;
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -15,13 +18,13 @@ public class UserGame {
 
 	@ManyToOne
 	@MapsId("userId")
-	@JoinColumn(name = "student_id")
-	User user;
+	@JoinColumn(name = "user_id")
+	private User user;
 
 	@ManyToOne
 	@MapsId("gameId")
 	@JoinColumn(name = "game_id")
-	Game game;
+	private Game game;
 
 	@Column(
 			nullable = false,
@@ -54,6 +57,13 @@ public class UserGame {
 	)
 	private State state;
 
+	@OneToMany(
+			mappedBy = "userGame",
+			cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+			fetch = FetchType.EAGER
+	)
+	private List<Turn> turns = new ArrayList<>();
+
 	public UserGame(User user, Game game) {
 		this.id = new UserGameId(user.getId(), game.getId());
 		this.user = user;
@@ -63,5 +73,10 @@ public class UserGame {
 		this.isUserHost = true;
 		this.isUsersTurn = false;
 		this.state = State.ACTIVE;
+	}
+
+	public void addTurn(Turn turn) {
+		turns.add(turn);
+		turn.setUserGame(this);
 	}
 }

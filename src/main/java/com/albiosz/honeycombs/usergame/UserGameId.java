@@ -16,7 +16,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class UserGameId implements Serializable {
 
-	@Column(name = "student_id")
+	@Column(name = "user_id")
 	private Long userId;
 
 	@Column(name = "game_id")
