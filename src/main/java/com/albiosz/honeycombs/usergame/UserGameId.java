@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Embeddable
 @Getter
@@ -17,12 +18,12 @@ import java.io.Serializable;
 public class UserGameId implements Serializable {
 
 	@Column(name = "user_id")
-	private Long userId;
+	private UUID userId;
 
 	@Column(name = "game_id")
-	private Long gameId;
+	private long gameId;
 
-	public UserGameId(Long userId, Long gameId) {
+	public UserGameId(UUID userId, long gameId) {
 		this.userId = userId;
 		this.gameId = gameId;
 	}

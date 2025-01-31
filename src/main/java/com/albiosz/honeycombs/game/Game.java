@@ -20,13 +20,13 @@ public class Game {
 			allocationSize = 1
 	)
 	@GeneratedValue(
-			strategy = GenerationType.UUID,
+			strategy = GenerationType.SEQUENCE,
 			generator = "game_id_seq"
 	)
 	@Column(
 			updatable = false,
 			nullable = false,
-			columnDefinition = "serial"
+			columnDefinition = "BIGINT"
 	)
 	private long id;
 

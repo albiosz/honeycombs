@@ -9,6 +9,7 @@ import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -18,21 +19,15 @@ import java.util.List;
 public class User {
 
 	@Id
-	@SequenceGenerator(
-			name = "user_id_seq",
-			sequenceName = "user_id_seq",
-			allocationSize = 1
-	)
 	@GeneratedValue(
-			strategy = GenerationType.SEQUENCE,
-			generator = "user_id_seq"
+			strategy = GenerationType.UUID
 	)
 	@Column(
 			updatable = false,
 			nullable = false,
-			columnDefinition = "serial"
+			columnDefinition = "UUID"
 	)
-	private long id;
+	private UUID id;
 
 	@Column(
 			nullable = false,

@@ -26,9 +26,10 @@ public class Turn {
 	)
 	@Column(
 			nullable = false,
-			columnDefinition = "INT"
+			updatable = false,
+			columnDefinition = "BIGINT"
 	)
-	private int id;
+	private long id;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id", referencedColumnName = "user_id")
