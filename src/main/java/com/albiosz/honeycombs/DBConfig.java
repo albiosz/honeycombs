@@ -10,6 +10,8 @@ import com.albiosz.honeycombs.usergame.UserGameRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class DBConfig {
 
@@ -36,11 +38,12 @@ public class DBConfig {
 		Turn turn1 = new Turn(5);
 		Turn turn2 = new Turn(6);
 
-		UserGame userGame = new UserGame(createdUser, createdGame);
-		userGame.addTurn(turn1);
-		userGame.addTurn(turn2);
+		createdUser.addUserToGame(createdGame);
+		List<UserGame> userGame = createdUser.getUserGames();
 
-		createdUser.addUserToGame(userGame);
+		userGame.getFirst().addTurn(turn1);
+		userGame.getFirst().addTurn(turn2);
+
 
 		createdUser.setEmail("new@email.com");
 

@@ -1,11 +1,15 @@
 package com.albiosz.honeycombs.game;
 
+import com.albiosz.honeycombs.user.User;
+import com.albiosz.honeycombs.usergame.UserGame;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -43,9 +47,17 @@ public class Game {
 	)
 	private State state;
 
+	@OneToMany(mappedBy = "game")
+	private List<UserGame> userGames = new ArrayList<>();
+
 	public Game() {
 		this.createdAt = Instant.now();
 		this.state = State.CREATED;
+	}
+
+	public void addUserToGame(User user) {
+		UserGame userGame = new UserGame(user, this);
+		userGames.add(userGame);
 	}
 }
 
