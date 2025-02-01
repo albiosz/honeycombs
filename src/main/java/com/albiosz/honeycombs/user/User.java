@@ -1,5 +1,6 @@
 package com.albiosz.honeycombs.user;
 
+import com.albiosz.honeycombs.game.Game;
 import com.albiosz.honeycombs.usergame.UserGame;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -62,7 +63,7 @@ public class User {
 		this.nickname = nickname;
 	}
 
-	public void addUserToGame(UserGame userGame) {
-		this.userGames.add(userGame);
+	public void addUserToGame(Game game) {
+		this.userGames.add(new UserGame(this, game));
 	}
 }

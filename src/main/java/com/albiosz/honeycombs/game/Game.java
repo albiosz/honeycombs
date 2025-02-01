@@ -47,7 +47,10 @@ public class Game {
 	)
 	private State state;
 
-	@OneToMany(mappedBy = "game")
+	@OneToMany(
+			mappedBy = "game",
+			orphanRemoval = true
+	)
 	private List<UserGame> userGames = new ArrayList<>();
 
 	public Game() {
