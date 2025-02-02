@@ -1,10 +1,12 @@
 spring:
   application:
     name: honeycombs
+  config:
+    import: optional:file:.env[.properties]
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgresql
-    username: user
-    password: passwd
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: create
@@ -14,9 +16,27 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         auto_quote_keyword: true
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+        mail:
+          smtp:
+            auth: true
+            starttls:
+                enable: true
+
+security:
+  jwt:
+    secret-key: ${JWT_SECRET_KEY}
+    expiration-time: 360000
+
 server:
   error:
     include-message: always
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
