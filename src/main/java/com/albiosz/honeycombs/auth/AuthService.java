@@ -45,7 +45,7 @@ public class AuthService {
 	}
 
 	public User register(UserRegisterDto input) {
-		User user = new User(input.getEmail(), passwordEncoder.encode(input.getPassword()), input.getUsername(), false);
+		User user = new User(input.getUsername(), passwordEncoder.encode(input.getPassword()), input.getNickname(), false);
 		user.setVerificationCode(generateVerificationCode());
 		user.setVerificationCodeExpiresAt(Instant.now().plusSeconds(60L * 15));
 		emailService.sendVerificationEmail(user);
@@ -53,7 +53,7 @@ public class AuthService {
 	}
 
 	public void verify(UserVerifyDto input) {
-		User user = userRepository.findByEmail(input.getEmail())
+		User user = userRepository.findByUsername(input.getUsername())
 				.orElseThrow(() -> new RuntimeException("User not found"));
 
 		if (user.isVerificationCodeExpired()) {
@@ -69,7 +69,7 @@ public class AuthService {
 	}
 
 	public void resendVerificationCode(String email) {
-		User user = userRepository.findByEmail(email)
+		User user = userRepository.findByUsername(email)
 				.orElseThrow(() -> new RuntimeException("User not found"));
 
 		if (user.isEnabled()) {

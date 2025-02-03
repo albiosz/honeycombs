@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserResendVerificationDto {
-	private String email;
+	private String username;
 }

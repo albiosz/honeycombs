@@ -33,7 +33,7 @@ public class EmailService {
 				+ "</html>";
 
 		try {
-			sendEmail(user.getEmail(), subject, htmlMessage);
+			sendEmail(user.getUsername(), subject, htmlMessage);
 		} catch (MessagingException e) {
 			e.printStackTrace();
 		}

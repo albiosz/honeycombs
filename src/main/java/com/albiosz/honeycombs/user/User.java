@@ -39,7 +39,7 @@ public class User implements UserDetails {
 			columnDefinition = "TEXT",
 			unique = true
 	)
-	private String email;
+	private String username; // username = email
 
 	@Column(
 			nullable = false,
@@ -52,7 +52,7 @@ public class User implements UserDetails {
 			columnDefinition = "TEXT",
 			unique = true
 	)
-	private String username;
+	private String nickname;
 
 	@Column
 	private boolean isEnabled;
@@ -70,10 +70,10 @@ public class User implements UserDetails {
 	)
 	private List<UserGame> userGames = new ArrayList<>();
 
-	public User(String email, String password, String username, boolean isEnabled) {
-		this.email = email;
-		this.password = password;
+	public User(String username, String password, String nickname, boolean isEnabled) {
 		this.username = username;
+		this.password = password;
+		this.nickname = nickname;
 		this.isEnabled = isEnabled;
 	}
 

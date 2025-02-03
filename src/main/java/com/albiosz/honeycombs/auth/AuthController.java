@@ -39,7 +39,7 @@ public class AuthController {
 	public ResponseEntity<String> register(@RequestBody UserRegisterDto userRegisterDto) {
 		try {
 			User user = authService.register(userRegisterDto);
-			return ResponseEntity.ok("User registered successfully! Verification code sent to your email: " + user.getEmail());
+			return ResponseEntity.ok("User registered successfully! Verification code sent to your email: " + user.getUsername());
 		} catch (RuntimeException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
@@ -58,7 +58,7 @@ public class AuthController {
 	@PostMapping("/resend-verification")
 	public ResponseEntity<String> resendVerification(@RequestBody UserResendVerificationDto userResendVerificationDto) {
 		try {
-			authService.resendVerificationCode(userResendVerificationDto.getEmail());
+			authService.resendVerificationCode(userResendVerificationDto.getUsername());
 			return ResponseEntity.ok("Verification code sent successfully!");
 		} catch (RuntimeException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
