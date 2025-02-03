@@ -30,8 +30,8 @@ spring:
 
 security:
   jwt:
-    secret-key: ${JWT_SECRET_KEY}
-    expiration-time: 360000
+    secret-key: ${JWT_SECRET}
+    expiration-time: 3600000
 
 server:
   error:

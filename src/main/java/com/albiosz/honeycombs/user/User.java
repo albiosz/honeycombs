@@ -7,8 +7,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,7 +21,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @ToString
-public class User {
+public class User implements UserDetails {
 
 	@Id
 	@GeneratedValue(
@@ -48,7 +52,16 @@ public class User {
 			columnDefinition = "TEXT",
 			unique = true
 	)
-	private String nickname;
+	private String username;
+
+	@Column
+	private boolean isEnabled;
+
+	@Column
+	private String verificationCode;
+
+	@Column
+	private Instant verificationCodeExpiresAt;
 
 	@OneToMany(
 			mappedBy = "user", // it is a field in the UserGame class
@@ -57,13 +70,44 @@ public class User {
 	)
 	private List<UserGame> userGames = new ArrayList<>();
 
-	public User(String email, String password, String nickname) {
+	public User(String email, String password, String username, boolean isEnabled) {
 		this.email = email;
 		this.password = password;
-		this.nickname = nickname;
+		this.username = username;
+		this.isEnabled = isEnabled;
 	}
 
 	public void addUserToGame(Game game) {
 		this.userGames.add(new UserGame(this, game));
+	}
+
+	public boolean isVerificationCodeExpired() {
+		return verificationCodeExpiresAt.isBefore(Instant.now());
+	}
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return List.of();
+	}
+
+	//TODO: add proper boolean checks
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return isEnabled;
 	}
 }

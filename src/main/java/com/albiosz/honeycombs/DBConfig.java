@@ -8,6 +8,7 @@ import com.albiosz.honeycombs.user.UserRepository;
 import com.albiosz.honeycombs.usergame.UserGame;
 import com.albiosz.honeycombs.usergame.UserGameRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,18 +18,21 @@ public class DBConfig {
 
 	private final UserRepository userRepo;
 	private final GameRepository gameRepo;
+	private final PasswordEncoder passwordEncoder;
 
 	public DBConfig(
 			UserRepository userRepo,
-			GameRepository gameRepo
+			GameRepository gameRepo,
+			PasswordEncoder passwordEncoder
 	) {
 		this.userRepo = userRepo;
 		this.gameRepo = gameRepo;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Transactional
 	public void initDB() {
-		User user = new User("email@email.com", "password", "nickname");
+		User user = new User("email@email.com", passwordEncoder.encode("password"), "nickname", true);
 		User createdUser = userRepo.save(user);
 
 		Game game = new Game();
@@ -43,10 +47,5 @@ public class DBConfig {
 
 		userGame.getFirst().addTurn(turn1);
 		userGame.getFirst().addTurn(turn2);
-
-
-		createdUser.setEmail("new@email.com");
-
-		System.out.println("User: " + createdUser);
 	}
 }
