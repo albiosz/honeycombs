@@ -39,6 +39,9 @@ public class SecurityConfiguration {
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				)
 				.authenticationProvider(authenticationProvider)
+				// the jwtAuthenticationFilter sets the SecurityContextHolder
+				// with the current JWT token (if its valid)
+				// If the SecurityContextHolder is set, then the UsernamePasswordAuthenticationFilter will not be called (or will it be??
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();

@@ -6,6 +6,7 @@ import com.albiosz.honeycombs.auth.dto.UserLoginDto;
 import com.albiosz.honeycombs.auth.dto.UserRegisterDto;
 import com.albiosz.honeycombs.auth.dto.UserVerifyDto;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -27,14 +28,16 @@ public class AuthService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	public User login(UserLoginDto input) {
+	public User login(UserLoginDto input) throws AuthenticationException {
 		User user = userRepository.findByUsername(input.getUsername())
 				.orElseThrow(() -> new RuntimeException("User not found"));
 
 		if (!user.isEnabled()) {
 			throw new RuntimeException("Account not verified. Please verify your account!");
 		}
-		// TODO: What does it do?
+		// authenticationManager.authenticate() the user with the given username and password
+		// authenticationProvider (ApplicationConfiguration) sets that the authentication is done by checking the username and encrypted password
+		// TODO: But how authenticationManager gets access to the authenticationProvider()?
 		authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(
 						input.getUsername(),

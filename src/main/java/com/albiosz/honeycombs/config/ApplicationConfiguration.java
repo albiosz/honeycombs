@@ -25,11 +25,10 @@ public class ApplicationConfiguration {
 				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
 	}
 
-	@Bean
-	BCryptPasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-
+	// TODO: Where the config parameter comes from
+	// TODO: How the authenticationManager gets access to the authenticationProvider
+	// I see that the authenticationProvider is set in the FilterChain in SecurityConfiguration
+	// is this how the AuthenticationManager is accessing the AuthenticationProvider?
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
 		return config.getAuthenticationManager();
@@ -43,5 +42,10 @@ public class ApplicationConfiguration {
 		authProvider.setPasswordEncoder(passwordEncoder());
 
 		return authProvider;
+	}
+
+	@Bean
+	BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 }
