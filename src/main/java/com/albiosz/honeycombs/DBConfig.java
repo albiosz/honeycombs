@@ -6,14 +6,15 @@ import com.albiosz.honeycombs.turn.Turn;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
 import com.albiosz.honeycombs.usergame.UserGame;
-import com.albiosz.honeycombs.usergame.UserGameRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Lazy
 public class DBConfig {
 
 	private final UserRepository userRepo;

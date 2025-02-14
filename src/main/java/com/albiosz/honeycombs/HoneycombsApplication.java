@@ -4,6 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 
 @SpringBootApplication
 public class HoneycombsApplication {
@@ -13,6 +14,7 @@ public class HoneycombsApplication {
 	}
 
 	@Bean
+	@Profile("!test")
 	CommandLineRunner setUpDatabase(DBConfig dbConfig) {
 		return args -> dbConfig.initDB();
 	}
