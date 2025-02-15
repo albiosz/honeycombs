@@ -1,22 +1,16 @@
 package com.albiosz.honeycombs.integration;
 
-import com.albiosz.honeycombs.HoneycombsApplication;
-import com.albiosz.honeycombs.auth.dto.UserLoginDto;
-import com.albiosz.honeycombs.auth.response.LoginResponse;
 import com.albiosz.honeycombs.game.Game;
 import com.albiosz.honeycombs.game.GameRepository;
 import com.albiosz.honeycombs.game.State;
-import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -24,21 +18,19 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.albiosz.honeycombs.integration.AuthTest.createURLWithPort;
-import static com.albiosz.honeycombs.integration.AuthTest.login;
+import static com.albiosz.honeycombs.integration.util.Auth.createURLWithPort;
+import static com.albiosz.honeycombs.integration.util.Auth.loginAndGetToken;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(
-		classes = HoneycombsApplication.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		properties = {
 				"spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration,org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"
 		}
 )
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@AutoConfigureMockMvc
 @ActiveProfiles("test")
 class GameTests {
 	@LocalServerPort
@@ -54,8 +46,7 @@ class GameTests {
 
 	@BeforeEach
 	void setUp() {
-		when(userRepository.findByUsername("email@email.com")).thenReturn(Optional.of(new User("email@email.com", new BCryptPasswordEncoder().encode("password"), "user", true)));
-		jwtToken = loginAndGetToken();
+		jwtToken = loginAndGetToken(port, userRepository);
 	}
 
 	@Test
@@ -75,14 +66,5 @@ class GameTests {
 
 		assertEquals(200, response.getStatusCode().value());
 		assertEquals(State.CREATED, Objects.requireNonNull(response.getBody()).getState());
-	}
-
-	private String loginAndGetToken() {
-		String url = createURLWithPort(port, "/auth/login");
-		UserLoginDto userLoginDto = new UserLoginDto("email@email.com", "password");
-		ResponseEntity<LoginResponse> response = login(url, userLoginDto);
-		assertEquals(200, response.getStatusCode().value());
-
-		return Objects.requireNonNull(response.getBody()).getToken();
 	}
 }

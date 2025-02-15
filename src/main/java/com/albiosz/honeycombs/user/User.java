@@ -61,7 +61,7 @@ public class User implements UserDetails {
 	private String verificationCode;
 
 	@Column
-	private Instant verificationCodeExpiresAt;
+	private transient Instant verificationCodeExpiresAt;
 
 	@OneToMany(
 			mappedBy = "user", // it is a field in the UserGame class
@@ -82,6 +82,9 @@ public class User implements UserDetails {
 	}
 
 	public boolean isVerificationCodeExpired() {
+		if (verificationCodeExpiresAt == null) {
+			return true;
+		}
 		return verificationCodeExpiresAt.isBefore(Instant.now());
 	}
 
