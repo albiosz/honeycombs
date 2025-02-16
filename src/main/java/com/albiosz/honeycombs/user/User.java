@@ -61,7 +61,7 @@ public class User implements UserDetails {
 	private String verificationCode;
 
 	@Column
-	private transient Instant verificationCodeExpiresAt;
+	private Instant verificationCodeExpiresAt;
 
 	@OneToMany(
 			mappedBy = "user", // it is a field in the UserGame class
