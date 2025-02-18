@@ -8,8 +8,9 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -51,16 +52,22 @@ public class Game {
 			mappedBy = "game",
 			orphanRemoval = true
 	)
-	private List<UserGame> userGames = new ArrayList<>();
+	private Map<UUID, UserGame> userGames = new HashMap<>();
 
 	public Game() {
 		this.createdAt = Instant.now();
 		this.state = State.CREATED;
 	}
 
-	public void addUserToGame(User user) {
+	public UserGame addUserToGame(User user) {
 		UserGame userGame = new UserGame(user, this);
-		userGames.add(userGame);
+		userGames.put(user.getId(), userGame);
+		user.getUserGames().add(userGame);
+		return userGame;
+	}
+
+	public UserGame getUserGame(UUID userId) {
+		return userGames.get(userId);
 	}
 }
 

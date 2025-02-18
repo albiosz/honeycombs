@@ -77,8 +77,11 @@ public class User implements UserDetails {
 		this.isEnabled = isEnabled;
 	}
 
-	public void addUserToGame(Game game) {
-		this.userGames.add(new UserGame(this, game));
+	public UserGame joinGame(Game game) {
+		UserGame userGame = new UserGame(this, game);
+		this.userGames.add(userGame);
+		game.getUserGames().put(this.getId(), userGame);
+		return userGame;
 	}
 
 	public boolean isVerificationCodeExpired() {

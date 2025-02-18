@@ -4,7 +4,9 @@ import com.albiosz.honeycombs.game.Game;
 import com.albiosz.honeycombs.turn.Turn;
 import com.albiosz.honeycombs.user.User;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -12,6 +14,8 @@ import java.util.List;
 
 @Entity
 @NoArgsConstructor
+@Getter
+@Setter
 public class UserGame {
 	@EmbeddedId
 	private UserGameId id;

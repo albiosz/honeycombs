@@ -1,5 +1,6 @@
 package com.albiosz.honeycombs.unit.auth;
 
+import com.albiosz.honeycombs.auth.AuthService;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
