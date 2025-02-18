@@ -1,4 +1,4 @@
-package com.albiosz.honeycombs.integration;
+package com.albiosz.honeycombs.integration.auth;
 
 import com.albiosz.honeycombs.HoneycombsApplication;
 import com.albiosz.honeycombs.auth.dto.UserLoginDto;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest(classes = HoneycombsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-class AuthTests {
+class AuthControllerTests {
 	@LocalServerPort
 	private int port;
 

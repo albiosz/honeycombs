@@ -1,4 +1,4 @@
-package com.albiosz.honeycombs.integration;
+package com.albiosz.honeycombs.integration.game;
 
 import com.albiosz.honeycombs.game.Game;
 import com.albiosz.honeycombs.game.GameRepository;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 )
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-class GameTests {
+class GameControllerTests {
 	@LocalServerPort
 	private int port;
 

@@ -1,4 +1,4 @@
-package com.albiosz.honeycombs.integration;
+package com.albiosz.honeycombs.integration.user;
 
 import com.albiosz.honeycombs.auth.JwtService;
 import com.albiosz.honeycombs.integration.util.AllRepositoryBeans;
@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Import(AllRepositoryBeans.class)
-class UserTests{
+class UserControllerTests {
 
 	@Autowired
 	private JwtService jwtService;
