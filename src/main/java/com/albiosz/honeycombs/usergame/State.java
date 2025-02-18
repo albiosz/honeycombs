@@ -1,5 +1,5 @@
 package com.albiosz.honeycombs.usergame;
 
 public enum State {
-	ACTIVE, FINISHED
+	IN_LOBBY, IN_PROGRESS, FINISHED
 }

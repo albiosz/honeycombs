@@ -76,7 +76,7 @@ public class UserGame {
 		this.playerNo = 0;
 		this.isUserHost = true;
 		this.isUsersTurn = false;
-		this.state = State.ACTIVE;
+		this.state = State.IN_LOBBY;
 	}
 
 	public void addTurn(Turn turn) {

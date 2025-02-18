@@ -1,6 +1,7 @@
 package com.albiosz.honeycombs.user;
 
 import com.albiosz.honeycombs.game.Game;
+import com.albiosz.honeycombs.usergame.State;
 import com.albiosz.honeycombs.usergame.UserGame;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -82,6 +83,16 @@ public class User implements UserDetails {
 		this.userGames.add(userGame);
 		game.getUserGames().put(this.getId(), userGame);
 		return userGame;
+	}
+
+	public void leaveOtherLobbies(Game game) {
+		userGames.stream()
+				.filter(userGame -> userGame.getState().equals(State.IN_LOBBY))
+				.forEach(userGame -> {
+					userGames.remove(userGame);
+					game.getUserGames().remove(this.getId());
+				}
+		);
 	}
 
 	public boolean isVerificationCodeExpired() {

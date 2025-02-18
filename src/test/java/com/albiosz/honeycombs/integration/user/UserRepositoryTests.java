@@ -18,8 +18,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -57,6 +56,7 @@ class UserRepositoryTests {
 	@BeforeEach
 	void setUp() {
 		User user = new User("email@email.com", "password", "user", true);
+		user = userRepository.save(user);
 
 		Game game = new Game();
 		UserGame userGame = user.joinGame(game);
@@ -65,7 +65,6 @@ class UserRepositoryTests {
 		userGame.addTurn(new Turn(8));
 
 		userRepository.deleteAll();
-		userRepository.save(user);
 	}
 
 	@Test
@@ -76,5 +75,21 @@ class UserRepositoryTests {
 
 		UserGame userGame = user.getUserGames().getFirst();
 		assertNotNull(userGame.getGame());
+	}
+
+	@Test
+	void testJoinGame() {
+		User user = new User("second@user.com", "password", "second-user", true);
+		user = userRepository.save(user);
+
+		assertTrue(user.getUserGames().isEmpty());
+
+		Game game = gameRepository.findAll().getFirst();
+		user.joinGame(game);
+
+		assertNotNull(user.getUserGames().getFirst());
+
+		user = userRepository.findByUsername("second@user.com").orElseThrow();
+		assertNotNull(user.getUserGames().getFirst());
 	}
 }
