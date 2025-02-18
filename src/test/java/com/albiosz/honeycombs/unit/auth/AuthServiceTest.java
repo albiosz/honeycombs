@@ -1,4 +1,4 @@
-package com.albiosz.honeycombs.auth;
+package com.albiosz.honeycombs.unit.auth;
 
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
