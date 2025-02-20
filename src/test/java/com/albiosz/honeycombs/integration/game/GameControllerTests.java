@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.albiosz.honeycombs.integration.util.Auth.createURLWithPort;
-import static com.albiosz.honeycombs.integration.util.Auth.loginAndGetToken;
+import static com.albiosz.honeycombs.util.Auth.createURLWithPort;
+import static com.albiosz.honeycombs.util.Auth.loginAndGetToken;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

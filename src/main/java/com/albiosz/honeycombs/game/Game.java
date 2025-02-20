@@ -2,11 +2,14 @@ package com.albiosz.honeycombs.game;
 
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.usergame.UserGame;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +19,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-public class Game {
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+public class Game implements Serializable {
 
 	@Id
 	@SequenceGenerator(
@@ -50,8 +54,11 @@ public class Game {
 
 	@OneToMany(
 			mappedBy = "game",
-			orphanRemoval = true
+			orphanRemoval = true,
+			cascade = CascadeType.ALL,
+			fetch = FetchType.EAGER
 	)
+//	@JsonManagedReference
 	private Map<UUID, UserGame> userGames = new HashMap<>();
 
 	public Game() {

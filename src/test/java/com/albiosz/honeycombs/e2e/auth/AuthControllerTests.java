@@ -1,4 +1,4 @@
-package com.albiosz.honeycombs.integration.auth;
+package com.albiosz.honeycombs.e2e.auth;
 
 import com.albiosz.honeycombs.HoneycombsApplication;
 import com.albiosz.honeycombs.auth.dto.UserLoginDto;
@@ -36,8 +36,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.time.Instant;
 
-import static com.albiosz.honeycombs.integration.util.Auth.createURLWithPort;
-import static com.albiosz.honeycombs.integration.util.Auth.sendLoginRequest;
+import static com.albiosz.honeycombs.util.Auth.createURLWithPort;
+import static com.albiosz.honeycombs.util.Auth.sendLoginRequest;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 

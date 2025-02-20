@@ -1,7 +1,7 @@
 package com.albiosz.honeycombs.integration.user;
 
 import com.albiosz.honeycombs.auth.JwtService;
-import com.albiosz.honeycombs.integration.util.AllRepositoryBeans;
+import com.albiosz.honeycombs.util.AllRepositoryBeans;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;

@@ -3,11 +3,14 @@ package com.albiosz.honeycombs.usergame;
 import com.albiosz.honeycombs.game.Game;
 import com.albiosz.honeycombs.turn.Turn;
 import com.albiosz.honeycombs.user.User;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +19,8 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserGame {
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+public class UserGame implements Serializable {
 	@EmbeddedId
 	private UserGameId id;
 

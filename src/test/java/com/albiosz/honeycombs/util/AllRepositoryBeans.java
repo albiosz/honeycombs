@@ -1,4 +1,4 @@
-package com.albiosz.honeycombs.integration.util;
+package com.albiosz.honeycombs.util;
 
 import com.albiosz.honeycombs.game.GameRepository;
 import com.albiosz.honeycombs.user.UserRepository;

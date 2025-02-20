@@ -1,4 +1,4 @@
-package com.albiosz.honeycombs.integration.util;
+package com.albiosz.honeycombs.util;
 
 import com.albiosz.honeycombs.auth.dto.UserLoginDto;
 import com.albiosz.honeycombs.auth.response.LoginResponse;

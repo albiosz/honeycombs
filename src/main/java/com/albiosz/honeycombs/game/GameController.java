@@ -29,4 +29,10 @@ public class GameController {
 	public void deleteGameById(long id) {
 		gameService.deleteGameById(id);
 	}
+
+	@PutMapping("/add-user/{gameId}")
+	public ResponseEntity<Game> addUser(@PathVariable long gameId) {
+		Game game = gameService.addUser(gameId);
+		return ResponseEntity.ok(game);
+	}
 }

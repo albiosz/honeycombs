@@ -3,6 +3,8 @@ package com.albiosz.honeycombs.user;
 import com.albiosz.honeycombs.game.Game;
 import com.albiosz.honeycombs.usergame.State;
 import com.albiosz.honeycombs.usergame.UserGame;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +24,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @ToString
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class User implements UserDetails {
 
 	@Id
@@ -67,7 +70,8 @@ public class User implements UserDetails {
 	@OneToMany(
 			mappedBy = "user", // it is a field in the UserGame class
 			orphanRemoval = false, // when a user is removed, all the userGames stay
-			cascade = {CascadeType.PERSIST, CascadeType.REMOVE}
+			cascade = CascadeType.ALL,
+			fetch = FetchType.EAGER
 	)
 	private List<UserGame> userGames = new ArrayList<>();
 
@@ -86,13 +90,13 @@ public class User implements UserDetails {
 	}
 
 	public void leaveOtherLobbies(Game game) {
-		userGames.stream()
+		List<UserGame> userGamesToRemove = userGames.stream()
 				.filter(userGame -> userGame.getState().equals(State.IN_LOBBY))
-				.forEach(userGame -> {
-					userGames.remove(userGame);
-					game.getUserGames().remove(this.getId());
-				}
-		);
+				.toList();
+
+		userGamesToRemove.forEach(userGame -> game.getUserGames().remove(this.getId()));
+
+		this.userGames.removeAll(userGamesToRemove);
 	}
 
 	public boolean isVerificationCodeExpired() {

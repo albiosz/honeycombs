@@ -28,7 +28,10 @@ class UserRepositoryTests {
 	private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
 			"postgres:16-alpine"
 	)
-			.withDatabaseName("honeycombs");
+			.withExposedPorts(5432) // this is the port that the db has inside the container; it is exposed to my maschine on a random port
+			.withDatabaseName("postgresql")
+			.withPassword("passwd")
+			.withUsername("user");
 
 	@DynamicPropertySource
 	static void configureDatasource(DynamicPropertyRegistry registry) {
@@ -55,23 +58,22 @@ class UserRepositoryTests {
 
 	@BeforeEach
 	void setUp() {
-		User user = new User("email@email.com", "password", "user", true);
-		user = userRepository.save(user);
+		userRepository.deleteAll();
 
-		Game game = new Game();
+		User user = userRepository.save(new User("email@email.com", "password", "user", true));
+		Game game = gameRepository.save(new Game());
+
 		UserGame userGame = user.joinGame(game);
 
 		userGame.addTurn(new Turn(10));
 		userGame.addTurn(new Turn(8));
-
-		userRepository.deleteAll();
 	}
 
 	@Test
 	void testFindByUsername() {
 		User user = userRepository.findByUsername("email@email.com").orElseThrow();
 
-		assertEquals(user.getUsername(), "email@email.com");
+		assertEquals("email@email.com", user.getUsername());
 
 		UserGame userGame = user.getUserGames().getFirst();
 		assertNotNull(userGame.getGame());

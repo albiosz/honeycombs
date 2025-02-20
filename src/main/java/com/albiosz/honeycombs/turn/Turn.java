@@ -1,18 +1,22 @@
 package com.albiosz.honeycombs.turn;
 
 import com.albiosz.honeycombs.usergame.UserGame;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 @Entity
 @NoArgsConstructor
 @Setter
 @Getter
-public class Turn {
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+public class Turn implements Serializable {
 
 	@Id
 	@SequenceGenerator(
