@@ -18,9 +18,10 @@ public class GameService {
 		this.userRepository = userRepository;
 	}
 
-	public Game createGame() {
-		Game game = new Game();
-		return gameRepository.save(game);
+	public Game createGame(String name) {
+		Game game = gameRepository.save(new Game(name));
+		addCurrentUserToGame(game);
+		return game;
 	}
 
 	public Game getGameById(long id) {
@@ -32,24 +33,49 @@ public class GameService {
 	}
 
 	public void deleteGameById(long id) {
+		Game gameToDelete = gameRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Game not found!"));
+
+		if (!gameToDelete.getState().equals(State.CREATED)) {
+			throw new RuntimeException("Game is already started!");
+		}
+
+		User userFromContext = getUserFromContext();
+		if (gameToDelete.getUserGame(userFromContext.getId()) == null) {
+			throw new RuntimeException("You are not in this game!");
+		}
+
+		if (!gameToDelete.getUserGame(userFromContext.getId()).isUserHost()) {
+			throw new RuntimeException("You are not the host of this game!");
+		}
+
 		gameRepository.deleteById(id);
 	}
 
 	public Game addUser(long gameId) {
 		Game game = gameRepository.findById(gameId)
-				.orElseThrow(() -> new RuntimeException("Game not found"));
+				.orElseThrow(() -> new RuntimeException("Game not found!"));
 
 		if (!game.getState().equals(State.CREATED)) {
-			throw new RuntimeException("Game is already started");
+			throw new RuntimeException("Game is already started!");
 		}
 
-		User userFromContext = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		addCurrentUserToGame(game);
+		return game;
+	}
 
-		User user = userRepository.findById(userFromContext.getId()).orElseThrow();
+	private void addCurrentUserToGame(Game game) {
+		User userFromContext = getUserFromContext();
+
+		User user = userRepository.findById(userFromContext.getId())
+				.orElseThrow(() -> new RuntimeException("Logged in user not found!"));
 		user.leaveOtherLobbies(game);
 		user.joinGame(game);
 
 		userRepository.flush();
-		return game;
+	}
+
+	private User getUserFromContext() {
+		return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 	}
 }

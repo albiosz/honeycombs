@@ -4,6 +4,7 @@ import com.albiosz.honeycombs.HoneycombsApplication;
 import com.albiosz.honeycombs.auth.JwtService;
 import com.albiosz.honeycombs.auth.dto.UserLoginDto;
 import com.albiosz.honeycombs.game.Game;
+import com.albiosz.honeycombs.game.GameDto;
 import com.albiosz.honeycombs.game.GameRepository;
 import com.albiosz.honeycombs.game.State;
 import com.albiosz.honeycombs.user.User;
@@ -30,8 +31,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import java.util.List;
 
 import static com.albiosz.honeycombs.util.Auth.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = HoneycombsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -58,7 +58,6 @@ class GameControllerTests {
 			"postgres:16-alpine"
 	)
 			.withDatabaseName("honeycombs");
-
 
 
 	@BeforeAll
@@ -94,7 +93,102 @@ class GameControllerTests {
 	}
 
 	@Test
-	void testJoinGame() {
+	void testGetGameById() {
+		Game game = gameRepository.save(new Game());
+
+		String url = createURLWithPort(port, "/api/game/" + game.getId());
+		headers.setBearerAuth(jwtToken);
+		headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
+
+		HttpEntity<?> entity = new HttpEntity<>(null, headers);
+
+		ResponseEntity<Game> response = restTemplate.exchange(
+				url,
+				HttpMethod.GET,
+				entity,
+				Game.class
+		);
+		Game responseGame = response.getBody();
+
+		assertEquals(200, response.getStatusCode().value());
+		assertEquals(game.getId(), responseGame.getId());
+	}
+
+	@Test
+	void testGetGamesByState() {
+		List<State> states = List.of(State.CREATED, State.IN_PROGRESS, State.FINISHED, State.FINISHED);
+		for (State state : states) {
+			Game game = new Game();
+			game.setState(state);
+			gameRepository.save(game);
+		}
+		
+		String url = createURLWithPort(port, "/api/game?state=CREATED");
+		headers.setBearerAuth(jwtToken);
+		headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
+
+		HttpEntity<?> entity = new HttpEntity<>(null, headers);
+
+		ResponseEntity<Game[]> response = restTemplate.exchange(
+				url,
+				HttpMethod.GET,
+				entity,
+				Game[].class
+		);
+		Game[] responseGames = response.getBody();
+
+		assertEquals(200, response.getStatusCode().value());
+		assertEquals(1, responseGames.length);
+	}
+
+	@Test
+	void testCreateGame() {
+		String url = createURLWithPort(port, "/api/game");
+		headers.setBearerAuth(jwtToken);
+		headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
+
+		GameDto gameDto = new GameDto("Game");
+
+		HttpEntity<?> entity = new HttpEntity<>(gameDto, headers);
+
+		ResponseEntity<Game> response = restTemplate.exchange(
+				url,
+				HttpMethod.POST,
+				entity,
+				Game.class
+		);
+		Game responseGame = response.getBody();
+
+		assertEquals(201, response.getStatusCode().value());
+		assertNotNull(responseGame);
+		assertEquals("Game", responseGame.getName());
+		assertNotNull(responseGame.getUserGame(user.getId()));
+		assertTrue(responseGame.getUserGame(user.getId()).isUserHost());
+	}
+
+	@Test
+	void testDeleteGameById() {
+		Game game = gameRepository.save(new Game());
+
+		String url = createURLWithPort(port, "/api/game/" + game.getId());
+		headers.setBearerAuth(jwtToken);
+		headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
+
+		HttpEntity<?> entity = new HttpEntity<>(null, headers);
+
+		ResponseEntity<Void> response = restTemplate.exchange(
+				url,
+				HttpMethod.DELETE,
+				entity,
+				Void.class
+		);
+
+		assertEquals(200, response.getStatusCode().value());
+		assertFalse(gameRepository.existsById(game.getId()));
+	}
+
+	@Test
+	void testAddUser() {
 		Game game = gameRepository.save(new Game());
 
 		String url = createURLWithPort(port, "/api/game/add-user/" + game.getId());
@@ -117,34 +211,5 @@ class GameControllerTests {
 
 		game = gameRepository.findById(game.getId()).orElseThrow();
 		assertEquals(1, game.getUserGames().size());
-	}
-
-	@Test
-	void testGetGamesByState() {
-		Game gameCreated = new Game();
-		gameCreated.setState(State.CREATED);
-		gameRepository.save(gameCreated);
-
-		Game gameInProgress = new Game();
-		gameInProgress.setState(State.IN_PROGRESS);
-		gameRepository.save(gameInProgress);
-		
-		String url = createURLWithPort(port, "/api/game/filter?state=CREATED");
-		headers.setBearerAuth(jwtToken);
-		headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
-
-		HttpEntity<?> entity = new HttpEntity<>(null, headers);
-
-		ResponseEntity<Game[]> response = restTemplate.exchange(
-				url,
-				HttpMethod.GET,
-				entity,
-				Game[].class
-		);
-		Game[] responseGames = response.getBody();
-
-		assertEquals(200, response.getStatusCode().value());
-		assertEquals(1, responseGames.length);
-		assertEquals(gameCreated.getId(), responseGames[0].getId());
 	}
 }

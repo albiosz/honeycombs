@@ -1,10 +1,9 @@
 package com.albiosz.honeycombs.unit.user;
 
-import com.albiosz.honeycombs.game.Game;
-import com.albiosz.honeycombs.game.GameRepository;
-import com.albiosz.honeycombs.game.GameService;
+
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
+import com.albiosz.honeycombs.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -14,19 +13,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class UserServiceTests {
+class UserServiceTests {
 
-	private GameService gameService;
+	private UserService userService;
 
 	@Mock
 	private UserRepository userRepository = mock(UserRepository.class);
-
-	@Mock
-	private GameRepository gameRepository = mock(GameRepository.class);
 
 	private static final UUID uuid = UUID.randomUUID();
 	private static final User user = new User("email@email.com", "password", "user", true);
@@ -34,10 +30,9 @@ public class UserServiceTests {
 
 	@BeforeEach
 	void setUp() {
-		user.setId(uuid);
+		user.setId(UUID.randomUUID());
 		when(userRepository.findById(uuid)).thenReturn(Optional.of(user));
-		when(gameRepository.findById(gameId)).thenReturn(Optional.of(new Game()));
-		gameService = new GameService(gameRepository, userRepository);
+		userService = new UserService(userRepository);
 
 		UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
 				user,
@@ -48,8 +43,9 @@ public class UserServiceTests {
 	}
 
 	@Test
-	void testAddUser() {
-		Game game = gameService.addUser(gameId);
-		assertTrue(game.getUserGames().size() > 0);
+	void testGetUserById() {
+		User foundUser = userService.getUserById(uuid);
+		assertEquals(foundUser.getUsername(), user.getUsername());
 	}
+
 }

@@ -41,6 +41,12 @@ public class Game implements Serializable {
 
 	@Column(
 			nullable = false,
+			columnDefinition = "TEXT"
+	)
+	private String name;
+
+	@Column(
+			nullable = false,
 			columnDefinition = "timestamp without time zone"
 	)
 	private Instant createdAt;
@@ -62,6 +68,13 @@ public class Game implements Serializable {
 	private Map<UUID, UserGame> userGames = new HashMap<>();
 
 	public Game() {
+		this.name = "NO_NAME_GAME";
+		this.createdAt = Instant.now();
+		this.state = State.CREATED;
+	}
+
+	public Game(String name) {
+		this.name = name;
 		this.createdAt = Instant.now();
 		this.state = State.CREATED;
 	}

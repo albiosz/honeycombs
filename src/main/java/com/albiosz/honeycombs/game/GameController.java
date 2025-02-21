@@ -16,30 +16,30 @@ public class GameController {
 		this.gameService = gameService;
 	}
 
-	@PostMapping
-	public ResponseEntity<Game> createGame() {
-		Game createdGame = gameService.createGame();
-		return ResponseEntity.status(201).body(createdGame);
-	}
-
-	@GetMapping
-	public Game getGameById(long id) {
+	@GetMapping("/{id}")
+	public Game getGameById(@PathVariable long id) {
 		return gameService.getGameById(id);
 	}
 
-	@GetMapping("/filter")
+	@GetMapping
 	public List<Game> getGamesByState(State state) {
 		return gameService.getGamesByState(state);
 	}
 
-	@DeleteMapping
-	public void deleteGameById(long id) {
+	@PostMapping
+	public ResponseEntity<Game> createGame(@RequestBody GameDto gameDto) {
+		Game createdGame = gameService.createGame(gameDto.getName());
+		return ResponseEntity.status(201).body(createdGame);
+	}
+
+	@DeleteMapping("/{id}")
+	public void deleteGameById(@PathVariable long id) {
 		gameService.deleteGameById(id);
 	}
 
-	@PutMapping("/add-user/{gameId}")
-	public ResponseEntity<Game> addUser(@PathVariable long gameId) {
-		Game game = gameService.addUser(gameId);
+	@PutMapping("/{id}/add-user")
+	public ResponseEntity<Game> addUser(@PathVariable long id) {
+		Game game = gameService.addUser(id);
 		return ResponseEntity.ok(game);
 	}
 }
