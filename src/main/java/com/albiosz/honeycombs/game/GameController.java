@@ -4,6 +4,8 @@ package com.albiosz.honeycombs.game;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(path = "/api/game")
 public class GameController {
@@ -23,6 +25,11 @@ public class GameController {
 	@GetMapping
 	public Game getGameById(long id) {
 		return gameService.getGameById(id);
+	}
+
+	@GetMapping("/filter")
+	public List<Game> getGamesByState(State state) {
+		return gameService.getGamesByState(state);
 	}
 
 	@DeleteMapping

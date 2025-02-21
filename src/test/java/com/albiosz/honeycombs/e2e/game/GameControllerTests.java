@@ -5,6 +5,7 @@ import com.albiosz.honeycombs.auth.JwtService;
 import com.albiosz.honeycombs.auth.dto.UserLoginDto;
 import com.albiosz.honeycombs.game.Game;
 import com.albiosz.honeycombs.game.GameRepository;
+import com.albiosz.honeycombs.game.State;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
 import org.junit.jupiter.api.AfterAll;
@@ -35,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest(classes = HoneycombsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-class UserControllerTests {
+class GameControllerTests {
 
 	@LocalServerPort
 	private int port;
@@ -116,5 +117,34 @@ class UserControllerTests {
 
 		game = gameRepository.findById(game.getId()).orElseThrow();
 		assertEquals(1, game.getUserGames().size());
+	}
+
+	@Test
+	void testGetGamesByState() {
+		Game gameCreated = new Game();
+		gameCreated.setState(State.CREATED);
+		gameRepository.save(gameCreated);
+
+		Game gameInProgress = new Game();
+		gameInProgress.setState(State.IN_PROGRESS);
+		gameRepository.save(gameInProgress);
+		
+		String url = createURLWithPort(port, "/api/game/filter?state=CREATED");
+		headers.setBearerAuth(jwtToken);
+		headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
+
+		HttpEntity<?> entity = new HttpEntity<>(null, headers);
+
+		ResponseEntity<Game[]> response = restTemplate.exchange(
+				url,
+				HttpMethod.GET,
+				entity,
+				Game[].class
+		);
+		Game[] responseGames = response.getBody();
+
+		assertEquals(200, response.getStatusCode().value());
+		assertEquals(1, responseGames.length);
+		assertEquals(gameCreated.getId(), responseGames[0].getId());
 	}
 }

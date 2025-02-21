@@ -5,6 +5,8 @@ import com.albiosz.honeycombs.user.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class GameService {
 
@@ -23,6 +25,10 @@ public class GameService {
 
 	public Game getGameById(long id) {
 		return gameRepository.findById(id).orElseThrow();
+	}
+
+	public List<Game> getGamesByState(State state) {
+		return gameRepository.findByState(state);
 	}
 
 	public void deleteGameById(long id) {
