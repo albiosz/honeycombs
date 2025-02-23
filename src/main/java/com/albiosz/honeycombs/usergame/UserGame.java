@@ -9,6 +9,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -27,11 +29,13 @@ public class UserGame implements Serializable {
 	@ManyToOne
 	@MapsId("userId")
 	@JoinColumn(name = "user_id")
+	@OnDelete(action = OnDeleteAction.RESTRICT)
 	private User user;
 
 	@ManyToOne
 	@MapsId("gameId")
 	@JoinColumn(name = "game_id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Game game;
 
 	@Column(
@@ -67,18 +71,18 @@ public class UserGame implements Serializable {
 
 	@OneToMany(
 			mappedBy = "userGame",
-			cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+			cascade = CascadeType.ALL,
 			fetch = FetchType.EAGER
 	)
 	private List<Turn> turns = new ArrayList<>();
 
-	public UserGame(User user, Game game) {
+	public UserGame(User user, Game game, boolean isUserHost) {
 		this.id = new UserGameId(user.getId(), game.getId());
 		this.user = user;
 		this.game = game;
 		this.createdAt = Instant.now();
 		this.playerNo = 0;
-		this.isUserHost = true;
+		this.isUserHost = isUserHost;
 		this.isUsersTurn = false;
 		this.state = State.IN_LOBBY;
 	}

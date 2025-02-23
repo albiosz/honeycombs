@@ -7,6 +7,7 @@ import com.albiosz.honeycombs.game.Game;
 import com.albiosz.honeycombs.game.GameDto;
 import com.albiosz.honeycombs.game.GameRepository;
 import com.albiosz.honeycombs.game.State;
+import com.albiosz.honeycombs.turn.Turn;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
 import org.junit.jupiter.api.AfterAll;
@@ -30,7 +31,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.List;
 
-import static com.albiosz.honeycombs.util.Auth.*;
+import static com.albiosz.honeycombs.util.Auth.createURLWithPort;
+import static com.albiosz.honeycombs.util.Auth.sendLoginRequest;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = HoneycombsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -48,7 +50,7 @@ class GameControllerTests {
 	private UserRepository userRepository;
 
 	@Autowired
-	GameRepository gameRepository;
+	private GameRepository gameRepository;
 
 	@Autowired
 	private JwtService jwtService;
@@ -57,7 +59,10 @@ class GameControllerTests {
 	static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
 			"postgres:16-alpine"
 	)
-			.withDatabaseName("honeycombs");
+			.withDatabaseName("honeycombs")
+			.withExposedPorts(5432)
+			.withUsername("user")
+			.withPassword("passwd");
 
 
 	@BeforeAll
@@ -81,6 +86,9 @@ class GameControllerTests {
 
 	@BeforeEach
 	void setUp() {
+//		String jdbcUrl = postgres.getJdbcUrl();
+
+		gameRepository.deleteAll();
 		userRepository.deleteAll();
 		user = userRepository.save(new User("email@email.com", new BCryptPasswordEncoder().encode("password"), "user", true));
 
@@ -168,7 +176,14 @@ class GameControllerTests {
 
 	@Test
 	void testDeleteGameById() {
-		Game game = gameRepository.save(new Game());
+		String jdbcUrl = postgres.getJdbcUrl();
+
+		Game game = gameRepository.save(new Game("Game to delete"));
+
+		User persistentUser = userRepository.findById(this.user.getId()).orElseThrow();
+		persistentUser.joinGame(game, true);
+		persistentUser.getUserGames().getFirst().addTurn(new Turn(1));
+		userRepository.save(persistentUser);
 
 		String url = createURLWithPort(port, "/api/game/" + game.getId());
 		headers.setBearerAuth(jwtToken);
@@ -191,7 +206,7 @@ class GameControllerTests {
 	void testAddUser() {
 		Game game = gameRepository.save(new Game());
 
-		String url = createURLWithPort(port, "/api/game/add-user/" + game.getId());
+		String url = createURLWithPort(port, String.format("/api/game/%d/add-user", game.getId()));
 		headers.setBearerAuth(jwtToken);
 		headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
 

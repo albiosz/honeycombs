@@ -43,7 +43,7 @@ public class DBConfig {
 		Turn turn1 = new Turn(5);
 		Turn turn2 = new Turn(6);
 
-		createdUser.joinGame(createdGame);
+		createdUser.joinGame(createdGame, true);
 		List<UserGame> userGame = createdUser.getUserGames();
 
 		userGame.getFirst().addTurn(turn1);

@@ -64,7 +64,7 @@ public class Game implements Serializable {
 			cascade = CascadeType.ALL,
 			fetch = FetchType.EAGER
 	)
-//	@JsonManagedReference
+	@MapKeyColumn(name = "user_id")
 	private Map<UUID, UserGame> userGames = new HashMap<>();
 
 	public Game() {
@@ -79,8 +79,8 @@ public class Game implements Serializable {
 		this.state = State.CREATED;
 	}
 
-	public UserGame addUserToGame(User user) {
-		UserGame userGame = new UserGame(user, this);
+	public UserGame addUserToGame(User user, boolean isUserHost) {
+		UserGame userGame = new UserGame(user, this, isUserHost);
 		userGames.put(user.getId(), userGame);
 		user.getUserGames().add(userGame);
 		return userGame;

@@ -20,7 +20,7 @@ public class GameService {
 
 	public Game createGame(String name) {
 		Game game = gameRepository.save(new Game(name));
-		addCurrentUserToGame(game);
+		addCurrentUserToGame(game, true);
 		return game;
 	}
 
@@ -60,17 +60,17 @@ public class GameService {
 			throw new RuntimeException("Game is already started!");
 		}
 
-		addCurrentUserToGame(game);
+		addCurrentUserToGame(game, false);
 		return game;
 	}
 
-	private void addCurrentUserToGame(Game game) {
+	private void addCurrentUserToGame(Game game, boolean isUserHost) {
 		User userFromContext = getUserFromContext();
 
 		User user = userRepository.findById(userFromContext.getId())
 				.orElseThrow(() -> new RuntimeException("Logged in user not found!"));
 		user.leaveOtherLobbies(game);
-		user.joinGame(game);
+		user.joinGame(game, isUserHost);
 
 		userRepository.flush();
 	}

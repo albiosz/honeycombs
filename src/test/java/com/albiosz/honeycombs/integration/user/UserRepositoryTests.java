@@ -63,7 +63,7 @@ class UserRepositoryTests {
 		User user = userRepository.save(new User("email@email.com", "password", "user", true));
 		Game game = gameRepository.save(new Game());
 
-		UserGame userGame = user.joinGame(game);
+		UserGame userGame = user.joinGame(game, true);
 
 		userGame.addTurn(new Turn(10));
 		userGame.addTurn(new Turn(8));
@@ -87,7 +87,7 @@ class UserRepositoryTests {
 		assertTrue(user.getUserGames().isEmpty());
 
 		Game game = gameRepository.findAll().getFirst();
-		user.joinGame(game);
+		user.joinGame(game, true);
 
 		assertNotNull(user.getUserGames().getFirst());
 

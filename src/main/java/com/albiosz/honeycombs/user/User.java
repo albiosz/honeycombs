@@ -82,8 +82,8 @@ public class User implements UserDetails {
 		this.isEnabled = isEnabled;
 	}
 
-	public UserGame joinGame(Game game) {
-		UserGame userGame = new UserGame(this, game);
+	public UserGame joinGame(Game game, boolean isHost) {
+		UserGame userGame = new UserGame(this, game, isHost);
 		this.userGames.add(userGame);
 		game.getUserGames().put(this.getId(), userGame);
 		return userGame;

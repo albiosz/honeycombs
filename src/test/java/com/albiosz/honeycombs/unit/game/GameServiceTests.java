@@ -74,8 +74,7 @@ public class GameServiceTests {
 	@DisplayName("Game cannot be deleted if user is not host of the game!")
 	void testDeleteGameById_UserNotHost() {
 		Game game = new Game();
-		user.joinGame(game);
-		game.getUserGame(uuid).setUserHost(false);
+		user.joinGame(game, false);
 		when(userRepository.findById(uuid)).thenReturn(Optional.of(user));
 		when(gameRepository.findById(gameId)).thenReturn(Optional.of(game));
 
@@ -88,8 +87,7 @@ public class GameServiceTests {
 	@DisplayName("Game can be successfully deleted!")
 	void testDeleteGameById_gameCanBeDeleted() {
 		Game game = new Game();
-		user.joinGame(game);
-		game.getUserGames().get(uuid).setUserHost(true);
+		user.joinGame(game, true);
 		when(userRepository.findById(uuid)).thenReturn(Optional.of(user));
 		when(gameRepository.findById(gameId)).thenReturn(Optional.of(game));
 

@@ -3,6 +3,8 @@ package com.albiosz.honeycombs.integration.game;
 import com.albiosz.honeycombs.game.Game;
 import com.albiosz.honeycombs.game.GameRepository;
 import com.albiosz.honeycombs.game.State;
+import com.albiosz.honeycombs.user.User;
+import com.albiosz.honeycombs.user.UserRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +30,7 @@ public class GameRepositoryTests {
 			"postgres:16-alpine"
 	)
 			.withExposedPorts(5432) // this is the port that the db has inside the container; it is exposed to my maschine on a random port
-			.withDatabaseName("postgresql")
+			.withDatabaseName("honeycombs")
 			.withPassword("passwd")
 			.withUsername("user");
 
@@ -52,6 +54,9 @@ public class GameRepositoryTests {
 	@Autowired
 	private GameRepository gameRepository;
 
+	@Autowired
+	private UserRepository userRepository;
+
 	@BeforeEach
 	void setUp() {
 		List<State> states = List.of(State.CREATED, State.CREATED, State.IN_PROGRESS, State.IN_PROGRESS, State.FINISHED);
@@ -61,6 +66,7 @@ public class GameRepositoryTests {
 			game.setState(state);
 			gameRepository.save(game);
 		}
+		gameRepository.flush();
 	}
 
 	@Test
@@ -72,5 +78,19 @@ public class GameRepositoryTests {
 		assertEquals(2, createdGames.size());
 		assertEquals(2, inProgressGames.size());
 		assertEquals(1, finishedGames.size());
+	}
+
+	@Test
+	void testFindByIdWithUserGame() {
+//		String jdbcUrl = postgres.getJdbcUrl();
+
+		Game game = gameRepository.save(new Game());
+		gameRepository.flush();
+
+		User user = userRepository.save(new User("email", "password", "username", true));
+		user.joinGame(game, true);
+		userRepository.flush();
+
+		assertEquals(1, game.getUserGames().size());
 	}
 }

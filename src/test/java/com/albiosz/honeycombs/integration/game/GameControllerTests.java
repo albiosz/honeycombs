@@ -53,7 +53,7 @@ class GameControllerTests {
 	void getGame() {
 		when(gameRepository.findById(1L)).thenReturn(Optional.of(new Game()));
 
-		String url = createURLWithPort(port, "/api/game?id=1");
+		String url = createURLWithPort(port, "/api/game/1");
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(jwtToken);
