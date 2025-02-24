@@ -196,7 +196,7 @@ class GameControllerTests {
 		ResponseEntity<ErrorResponse> response = sendDeleteGameRequest(game.getId(), ErrorResponse.class);
 
 		assertEquals(400, response.getStatusCode().value());
-		assertTrue(response.getBody().message().contains("Game cannot be deleted"));
+		assertTrue(response.getBody().message().contains("cannot be modified"));
 		assertTrue(gameRepository.existsById(game.getId()));
 	}
 
@@ -262,21 +262,36 @@ class GameControllerTests {
 	}
 
 	@Test
+	@DisplayName("Game not found")
+	void testAddUser_GameNotFound() {
+		ResponseEntity<ErrorResponse> response = sendAddUserRequest(1, ErrorResponse.class);
+
+		assertEquals(404, response.getStatusCode().value());
+		assertTrue(response.getBody().message().contains("Game not found"));
+	}
+
+	@Test
+	@DisplayName("Game already started, user cannot join the game")
+	void testAddUser_GameAlreadyStarted() {
+		Game game = gameRepository.save(new Game());
+		game.setState(State.IN_PROGRESS);
+		gameRepository.save(game);
+
+		ResponseEntity<ErrorResponse> response = sendAddUserRequest(game.getId(), ErrorResponse.class);
+
+		assertEquals(400, response.getStatusCode().value());
+		assertTrue(response.getBody().message().contains("cannot be modified"));
+
+		game = gameRepository.findById(game.getId()).orElseThrow();
+		assertEquals(0, game.getUserGames().size());
+	}
+
+	@Test
+	@DisplayName("User joins the game successfully")
 	void testAddUser() {
 		Game game = gameRepository.save(new Game());
 
-		String url = createURLWithPort(port, String.format("/api/game/%d/add-user", game.getId()));
-		headers.setBearerAuth(jwtToken);
-		headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
-
-		HttpEntity<?> entity = new HttpEntity<>(null, headers);
-
-		ResponseEntity<Game> response = restTemplate.exchange(
-				url,
-				HttpMethod.PUT,
-				entity,
-				Game.class
-		);
+		ResponseEntity<Game> response = sendAddUserRequest(game.getId(), Game.class);
 		Game responseGame = response.getBody();
 
 		assertEquals(200, response.getStatusCode().value());
@@ -285,5 +300,20 @@ class GameControllerTests {
 
 		game = gameRepository.findById(game.getId()).orElseThrow();
 		assertEquals(1, game.getUserGames().size());
+	}
+
+	private <T> ResponseEntity<T> sendAddUserRequest(long gameId, Class<T> expectedReturnType) {
+		String url = createURLWithPort(port, String.format("/api/game/%d/add-user", gameId));
+		headers.setBearerAuth(jwtToken);
+		headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
+
+		HttpEntity<Void> entity = new HttpEntity<>(null, headers);
+
+		return restTemplate.exchange(
+				url,
+				HttpMethod.PUT,
+				entity,
+				expectedReturnType
+		);
 	}
 }

@@ -1,11 +1,12 @@
 package com.albiosz.honeycombs.game;
 
-import com.albiosz.honeycombs.game.exceptions.GameCannotBeDeleted;
+import com.albiosz.honeycombs.game.exceptions.GameNotModifiable;
 import com.albiosz.honeycombs.game.exceptions.GameNotFound;
 import com.albiosz.honeycombs.game.exceptions.UserNotGameHost;
 import com.albiosz.honeycombs.game.exceptions.UserNotInGame;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
+import com.albiosz.honeycombs.user.exceptions.UserNotFound;
 import com.albiosz.honeycombs.usergame.UserGame;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,7 @@ public class GameService {
 				.orElseThrow(GameNotFound::new);
 
 		if (!gameToDelete.getState().equals(State.CREATED)) {
-			throw new GameCannotBeDeleted();
+			throw new GameNotModifiable();
 		}
 
 		User userFromContext = getUserFromContext();
@@ -59,10 +60,10 @@ public class GameService {
 
 	public Game addUser(long gameId) {
 		Game game = gameRepository.findById(gameId)
-				.orElseThrow(() -> new RuntimeException("Game not found!"));
+				.orElseThrow(GameNotFound::new);
 
 		if (!game.getState().equals(State.CREATED)) {
-			throw new RuntimeException("Game is already started!");
+			throw new GameNotModifiable();
 		}
 
 		addCurrentUserToGame(game, false);
@@ -73,7 +74,7 @@ public class GameService {
 		User userFromContext = getUserFromContext();
 
 		User user = userRepository.findById(userFromContext.getId())
-				.orElseThrow(() -> new RuntimeException("Logged in user not found!"));
+				.orElseThrow(UserNotFound::new);
 		user.leaveOtherLobbies(game);
 		user.joinGame(game, isUserHost);
 

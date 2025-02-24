@@ -4,7 +4,7 @@ import com.albiosz.honeycombs.game.Game;
 import com.albiosz.honeycombs.game.GameRepository;
 import com.albiosz.honeycombs.game.GameService;
 import com.albiosz.honeycombs.game.State;
-import com.albiosz.honeycombs.game.exceptions.GameCannotBeDeleted;
+import com.albiosz.honeycombs.game.exceptions.GameNotModifiable;
 import com.albiosz.honeycombs.game.exceptions.UserNotGameHost;
 import com.albiosz.honeycombs.game.exceptions.UserNotInGame;
 import com.albiosz.honeycombs.user.User;
@@ -58,7 +58,7 @@ public class GameServiceTests {
 
 		gameService = new GameService(gameRepository, userRepository);
 
-		assertThrows(GameCannotBeDeleted.class, () -> gameService.deleteGameById(gameId));
+		assertThrows(GameNotModifiable.class, () -> gameService.deleteGameById(gameId));
 	}
 
 	@Test
