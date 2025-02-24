@@ -3,6 +3,7 @@ package com.albiosz.honeycombs.e2e.game;
 import com.albiosz.honeycombs.HoneycombsApplication;
 import com.albiosz.honeycombs.auth.JwtService;
 import com.albiosz.honeycombs.auth.dto.UserLoginDto;
+import com.albiosz.honeycombs.config.exceptions.ErrorResponse;
 import com.albiosz.honeycombs.game.Game;
 import com.albiosz.honeycombs.game.GameDto;
 import com.albiosz.honeycombs.game.GameRepository;
@@ -10,10 +11,7 @@ import com.albiosz.honeycombs.game.State;
 import com.albiosz.honeycombs.turn.Turn;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -175,6 +173,49 @@ class GameControllerTests {
 	}
 
 	@Test
+	@DisplayName("Game cannot be deleted, it already started")
+	void testDeleteGameById_GameAlreadyStarted() {
+		Game game = gameRepository.save(new Game("Game to delete"));
+		game.setState(State.IN_PROGRESS);
+		gameRepository.save(game);
+
+		ResponseEntity<ErrorResponse> response = sendDeleteGameRequest(game.getId(), ErrorResponse.class);
+
+		assertEquals(400, response.getStatusCode().value());
+		assertTrue(response.getBody().message().contains("Game cannot be deleted"));
+		assertTrue(gameRepository.existsById(game.getId()));
+	}
+
+	@Test
+	@DisplayName("Game cannot be deleted, user is not in the game")
+	void testDeleteGameById_UserNotPart() {
+		Game game = gameRepository.save(new Game("Game to delete"));
+
+		ResponseEntity<ErrorResponse> response = sendDeleteGameRequest(game.getId(), ErrorResponse.class);
+
+		assertEquals(400, response.getStatusCode().value());
+		assertTrue(response.getBody().message().contains("not in the game"));
+		assertTrue(gameRepository.existsById(game.getId()));
+	}
+
+	@Test
+	@DisplayName("User in the game but is not a host")
+	void testDeleteGameById_UserNotHost() {
+		Game game = gameRepository.save(new Game("Game to delete"));
+
+		User persistentUser = userRepository.findById(this.user.getId()).orElseThrow();
+		persistentUser.joinGame(game, false);
+		userRepository.save(persistentUser);
+
+		ResponseEntity<ErrorResponse> response = sendDeleteGameRequest(game.getId(), ErrorResponse.class);
+
+		assertEquals(400, response.getStatusCode().value());
+		assertTrue(response.getBody().message().contains("not host of the game"));
+		assertTrue(gameRepository.existsById(game.getId()));
+	}
+
+	@Test
+	@DisplayName("User in the game and is host = game can be delted")
 	void testDeleteGameById() {
 		String jdbcUrl = postgres.getJdbcUrl();
 
@@ -185,21 +226,25 @@ class GameControllerTests {
 		persistentUser.getUserGames().getFirst().addTurn(new Turn(1));
 		userRepository.save(persistentUser);
 
-		String url = createURLWithPort(port, "/api/game/" + game.getId());
-		headers.setBearerAuth(jwtToken);
-		headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
-
-		HttpEntity<?> entity = new HttpEntity<>(null, headers);
-
-		ResponseEntity<Void> response = restTemplate.exchange(
-				url,
-				HttpMethod.DELETE,
-				entity,
-				Void.class
-		);
+		ResponseEntity<Void> response = sendDeleteGameRequest(game.getId(), Void.class);
 
 		assertEquals(200, response.getStatusCode().value());
 		assertFalse(gameRepository.existsById(game.getId()));
+	}
+
+	private <T> ResponseEntity<T> sendDeleteGameRequest(long gameId, Class<T> expectedReturnType) {
+		String url = createURLWithPort(port, "/api/game/" + gameId);
+		headers.setBearerAuth(jwtToken);
+		headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
+
+		HttpEntity<T> entity = new HttpEntity<>(null, headers);
+
+		return restTemplate.exchange(
+				url,
+				HttpMethod.DELETE,
+				entity,
+				expectedReturnType
+		);
 	}
 
 	@Test

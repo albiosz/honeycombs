@@ -1,5 +1,8 @@
 package com.albiosz.honeycombs.game;
 
+import com.albiosz.honeycombs.game.exceptions.GameCannotBeDeleted;
+import com.albiosz.honeycombs.game.exceptions.UserNotGameHost;
+import com.albiosz.honeycombs.game.exceptions.UserNotInGame;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
 import com.albiosz.honeycombs.usergame.UserGame;
@@ -38,16 +41,15 @@ public class GameService {
 				.orElseThrow(() -> new RuntimeException("Game not found!"));
 
 		if (!gameToDelete.getState().equals(State.CREATED)) {
-			throw new RuntimeException("Game is already started!");
+			throw new GameCannotBeDeleted();
 		}
 
 		User userFromContext = getUserFromContext();
-		UserGame userGame = gameToDelete.getUserGame(userFromContext.getId()).orElseThrow(
-				() -> new RuntimeException("You are not in this game!")
-		);
+		UserGame userGame = gameToDelete.getUserGame(userFromContext.getId())
+				.orElseThrow(UserNotInGame::new);
 
 		if (!userGame.isUserHost()) {
-			throw new RuntimeException("You are not the host of this game!");
+			throw new UserNotGameHost();
 		}
 
 		gameRepository.deleteById(id);

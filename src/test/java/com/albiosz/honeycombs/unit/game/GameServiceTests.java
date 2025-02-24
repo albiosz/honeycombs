@@ -4,6 +4,9 @@ import com.albiosz.honeycombs.game.Game;
 import com.albiosz.honeycombs.game.GameRepository;
 import com.albiosz.honeycombs.game.GameService;
 import com.albiosz.honeycombs.game.State;
+import com.albiosz.honeycombs.game.exceptions.GameCannotBeDeleted;
+import com.albiosz.honeycombs.game.exceptions.UserNotGameHost;
+import com.albiosz.honeycombs.game.exceptions.UserNotInGame;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,7 +58,7 @@ public class GameServiceTests {
 
 		gameService = new GameService(gameRepository, userRepository);
 
-		assertThrows(RuntimeException.class, () -> gameService.deleteGameById(gameId));
+		assertThrows(GameCannotBeDeleted.class, () -> gameService.deleteGameById(gameId));
 	}
 
 	@Test
@@ -67,7 +70,7 @@ public class GameServiceTests {
 
 		gameService = new GameService(gameRepository, userRepository);
 
-		assertThrows(RuntimeException.class, () -> gameService.deleteGameById(gameId));
+		assertThrows(UserNotInGame.class, () -> gameService.deleteGameById(gameId));
 	}
 
 	@Test
@@ -80,7 +83,7 @@ public class GameServiceTests {
 
 		gameService = new GameService(gameRepository, userRepository);
 
-		assertThrows(RuntimeException.class, () -> gameService.deleteGameById(gameId));
+		assertThrows(UserNotGameHost.class, () -> gameService.deleteGameById(gameId));
 	}
 
 	@Test
