@@ -1,6 +1,7 @@
 package com.albiosz.honeycombs.game;
 
 import com.albiosz.honeycombs.game.exceptions.GameCannotBeDeleted;
+import com.albiosz.honeycombs.game.exceptions.GameNotFound;
 import com.albiosz.honeycombs.game.exceptions.UserNotGameHost;
 import com.albiosz.honeycombs.game.exceptions.UserNotInGame;
 import com.albiosz.honeycombs.user.User;
@@ -29,7 +30,8 @@ public class GameService {
 	}
 
 	public Game getGameById(long id) {
-		return gameRepository.findById(id).orElseThrow();
+		return gameRepository.findById(id)
+				.orElseThrow(GameNotFound::new);
 	}
 
 	public List<Game> getGamesByState(State state) {
@@ -38,7 +40,7 @@ public class GameService {
 
 	public void deleteGameById(long id) {
 		Game gameToDelete = gameRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Game not found!"));
+				.orElseThrow(GameNotFound::new);
 
 		if (!gameToDelete.getState().equals(State.CREATED)) {
 			throw new GameCannotBeDeleted();

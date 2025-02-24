@@ -1,6 +1,7 @@
 package com.albiosz.honeycombs.config.exceptions;
 
 import com.albiosz.honeycombs.game.exceptions.GameCannotBeDeleted;
+import com.albiosz.honeycombs.game.exceptions.GameNotFound;
 import com.albiosz.honeycombs.game.exceptions.UserNotGameHost;
 import com.albiosz.honeycombs.game.exceptions.UserNotInGame;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,21 @@ public class GlobalExceptionHandler {
 			UserNotInGame.class,
 			UserNotGameHost.class
 	})
-	public @ResponseBody ErrorResponse handleGameCannotBeDeleted(
+	public @ResponseBody ErrorResponse handleBadRequest(
+			RuntimeException ex
+	) {
+		return new ErrorResponse(
+						ex.getMessage(),
+						"",
+						null
+				);
+	}
+
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	@ExceptionHandler(value={
+			GameNotFound.class
+	})
+	public @ResponseBody ErrorResponse handleNotFound(
 			RuntimeException ex
 	) {
 		return new ErrorResponse(

@@ -99,25 +99,39 @@ class GameControllerTests {
 	}
 
 	@Test
+	@DisplayName("Game does not exist")
+	void testGetGameById_GameNotFound() {
+		ResponseEntity<ErrorResponse> response = sendGetGamesRequest(1, ErrorResponse.class);
+
+		assertEquals(404, response.getStatusCode().value());
+		assertTrue(response.getBody().message().contains("Game not found"));
+	}
+
+	@Test
+	@DisplayName("Game exists")
 	void testGetGameById() {
 		Game game = gameRepository.save(new Game());
 
-		String url = createURLWithPort(port, "/api/game/" + game.getId());
-		headers.setBearerAuth(jwtToken);
-		headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
-
-		HttpEntity<?> entity = new HttpEntity<>(null, headers);
-
-		ResponseEntity<Game> response = restTemplate.exchange(
-				url,
-				HttpMethod.GET,
-				entity,
-				Game.class
-		);
+		ResponseEntity<Game> response = sendGetGamesRequest(game.getId(), Game.class);
 		Game responseGame = response.getBody();
 
 		assertEquals(200, response.getStatusCode().value());
 		assertEquals(game.getId(), responseGame.getId());
+	}
+
+	private <T> ResponseEntity<T> sendGetGamesRequest(long gameId, Class<T> expectedReturnType) {
+		String url = createURLWithPort(port, "/api/game/" + gameId);
+		headers.setBearerAuth(jwtToken);
+		headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
+
+		HttpEntity<Void> entity = new HttpEntity<>(null, headers);
+
+		return restTemplate.exchange(
+				url,
+				HttpMethod.GET,
+				entity,
+				expectedReturnType
+		);
 	}
 
 	@Test
