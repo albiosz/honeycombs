@@ -170,8 +170,8 @@ class GameControllerTests {
 		assertEquals(201, response.getStatusCode().value());
 		assertNotNull(responseGame);
 		assertEquals("Game", responseGame.getName());
-		assertNotNull(responseGame.getUserGame(user.getId()));
-		assertTrue(responseGame.getUserGame(user.getId()).isUserHost());
+		assertTrue(responseGame.getUserGame(user.getId()).isPresent());
+		assertTrue(responseGame.getUserGame(user.getId()).get().isUserHost());
 	}
 
 	@Test

@@ -2,6 +2,7 @@ package com.albiosz.honeycombs.game;
 
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
+import com.albiosz.honeycombs.usergame.UserGame;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -41,11 +42,11 @@ public class GameService {
 		}
 
 		User userFromContext = getUserFromContext();
-		if (gameToDelete.getUserGame(userFromContext.getId()) == null) {
-			throw new RuntimeException("You are not in this game!");
-		}
+		UserGame userGame = gameToDelete.getUserGame(userFromContext.getId()).orElseThrow(
+				() -> new RuntimeException("You are not in this game!")
+		);
 
-		if (!gameToDelete.getUserGame(userFromContext.getId()).isUserHost()) {
+		if (!userGame.isUserHost()) {
 			throw new RuntimeException("You are not the host of this game!");
 		}
 

@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Entity
@@ -86,8 +87,8 @@ public class Game implements Serializable {
 		return userGame;
 	}
 
-	public UserGame getUserGame(UUID userId) {
-		return userGames.get(userId);
+	public Optional<UserGame> getUserGame(UUID userId) {
+		return Optional.ofNullable(userGames.get(userId));
 	}
 }
 
