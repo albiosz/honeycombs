@@ -23,7 +23,7 @@ public class Auth {
 		String url = createURLWithPort(port, "/auth/login");
 		UserLoginDto credentials = new UserLoginDto("email@email.com", "password");
 
-		ResponseEntity<LoginResponse> response = sendLoginRequest(url, credentials);
+		ResponseEntity<LoginResponse> response = sendLoginRequest(url, credentials, LoginResponse.class);
 
 		assert(response.getBody() != null);
 
@@ -31,7 +31,7 @@ public class Auth {
 
 	}
 
-	public static ResponseEntity<LoginResponse> sendLoginRequest(String url, UserLoginDto credentials) {
+	public static <T> ResponseEntity<T> sendLoginRequest(String url, UserLoginDto credentials, Class<T> responseType) {
 		TestRestTemplate restTemplate = new TestRestTemplate();
 		HttpHeaders headers = new HttpHeaders();
 
@@ -41,7 +41,7 @@ public class Auth {
 				url,
 				HttpMethod.POST,
 				entity,
-				LoginResponse.class
+				responseType
 		);
 	}
 

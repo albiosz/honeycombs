@@ -2,6 +2,7 @@ package com.albiosz.honeycombs.e2e.game;
 
 import com.albiosz.honeycombs.HoneycombsApplication;
 import com.albiosz.honeycombs.auth.dto.UserLoginDto;
+import com.albiosz.honeycombs.auth.response.LoginResponse;
 import com.albiosz.honeycombs.config.exceptions.ErrorResponse;
 import com.albiosz.honeycombs.game.Game;
 import com.albiosz.honeycombs.game.GameDto;
@@ -89,7 +90,7 @@ class GameControllerTests {
 
 		String url = createURLWithPort(port, "/auth/login");
 		UserLoginDto userLoginDto = new UserLoginDto(user.getUsername(), "password");
-		jwtToken = sendLoginRequest(url, userLoginDto).getBody().getToken();
+		jwtToken = sendLoginRequest(url, userLoginDto, LoginResponse.class).getBody().getToken();
 
 		restTemplate = new TestRestTemplate();
 		headers = new HttpHeaders();

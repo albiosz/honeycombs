@@ -1,14 +1,16 @@
 package com.albiosz.honeycombs.auth;
 
-import com.albiosz.honeycombs.user.User;
-import com.albiosz.honeycombs.user.UserRepository;
 import com.albiosz.honeycombs.auth.dto.UserLoginDto;
 import com.albiosz.honeycombs.auth.dto.UserRegisterDto;
 import com.albiosz.honeycombs.auth.dto.UserVerifyDto;
+import com.albiosz.honeycombs.auth.exceptions.LoginNotPossible;
+import com.albiosz.honeycombs.auth.exceptions.InvalidLoginData;
+import com.albiosz.honeycombs.user.User;
+import com.albiosz.honeycombs.user.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -30,20 +32,25 @@ public class AuthService {
 
 	public User login(UserLoginDto input) throws AuthenticationException {
 		User user = userRepository.findByUsername(input.getUsername())
-				.orElseThrow(() -> new RuntimeException("User not found"));
+				.orElseThrow(InvalidLoginData::new);
 
 		if (!user.isEnabled()) {
-			throw new RuntimeException("Account not verified. Please verify your account!");
+			throw new LoginNotPossible();
 		}
-		// authenticationManager.authenticate() the user with the given username and password
-		// authenticationProvider (ApplicationConfiguration) sets that the authentication is done by checking the username and encrypted password
-		// TODO: But how authenticationManager gets access to the authenticationProvider()?
-		authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(
-						input.getUsername(),
-						input.getPassword()
-				)
-		);
+
+		try {
+			// authenticationManager.authenticate() the user with the given username and password
+			// authenticationProvider (ApplicationConfiguration) sets that the authentication is done by checking the username and encrypted password
+			// TODO: But how authenticationManager gets access to the authenticationProvider()?
+			authenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(
+							input.getUsername(),
+							input.getPassword()
+					)
+			);
+		} catch (AuthenticationException e) {
+			throw new InvalidLoginData();
+		}
 		return user;
 	}
 

@@ -6,15 +6,13 @@ import com.albiosz.honeycombs.auth.dto.UserRegisterDto;
 import com.albiosz.honeycombs.auth.dto.UserResendVerificationDto;
 import com.albiosz.honeycombs.auth.dto.UserVerifyDto;
 import com.albiosz.honeycombs.auth.response.LoginResponse;
+import com.albiosz.honeycombs.config.exceptions.ErrorResponse;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,10 +77,12 @@ class AuthControllerTests {
 	@Autowired
 	UserRepository userRepository;
 
+	private User user;
+
 	@BeforeEach
 	void setUp() {
 		userRepository.deleteAll();
-		userRepository.save(new User("email@email.com", new BCryptPasswordEncoder().encode("password"), "user", true));
+		user = userRepository.save(new User("email@email.com", new BCryptPasswordEncoder().encode("password"), "user", true));
 		when(javaMailSender.createMimeMessage()).thenReturn(new MimeMessage((Session) null));
 
 		restTemplate = new TestRestTemplate();
@@ -90,10 +90,39 @@ class AuthControllerTests {
 	}
 
 	@Test
+	@DisplayName("POST /auth/login - invalid credentials")
+	void testLogin_userNotFound() {
+		String url = createURLWithPort(port, "/auth/login");
+		UserLoginDto userLoginDto = new UserLoginDto("not@existent.com", "pass");
+		ResponseEntity<ErrorResponse> response = sendLoginRequest(url, userLoginDto, ErrorResponse.class);
+		assertEquals(401, response.getStatusCode().value());
+	}
+
+	@Test
+	@DisplayName("POST /auth/login - user not enabled")
+	void testLogin_userNotEnabled() {
+		User createdUser = userRepository.save(new User("new@email.com", new BCryptPasswordEncoder().encode("password"), "new_user", false));
+		String url = createURLWithPort(port, "/auth/login");
+		UserLoginDto userLoginDto = new UserLoginDto(createdUser.getUsername(), "password");
+		ResponseEntity<ErrorResponse> response = sendLoginRequest(url, userLoginDto, ErrorResponse.class);
+		assertEquals(403, response.getStatusCode().value());
+	}
+
+	@Test
+	@DisplayName("POST /auth/login - invalid password")
+	void testLogin_invalidPassword() {
+		String url = createURLWithPort(port, "/auth/login");
+		UserLoginDto userLoginDto = new UserLoginDto(user.getUsername(), "invalid_password");
+		ResponseEntity<ErrorResponse> response = sendLoginRequest(url, userLoginDto, ErrorResponse.class);
+		assertEquals(401, response.getStatusCode().value());
+	}
+
+	@Test
+	@DisplayName("POST /auth/login - success")
 	void testLogin() {
 		String url = createURLWithPort(port, "/auth/login");
 		UserLoginDto userLoginDto = new UserLoginDto("email@email.com", "password");
-		ResponseEntity<LoginResponse> response = sendLoginRequest(url, userLoginDto);
+		ResponseEntity<LoginResponse> response = sendLoginRequest(url, userLoginDto, LoginResponse.class);
 		assertEquals(200, response.getStatusCode().value());
 	}
 

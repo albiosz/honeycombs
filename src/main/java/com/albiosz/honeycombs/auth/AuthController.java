@@ -24,14 +24,7 @@ public class AuthController {
 
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody UserLoginDto userLoginDto) {
-		User user;
-		try {
-			user = authService.login(userLoginDto);
-		} catch (AuthenticationException e) {
-			return ResponseEntity.status(401).body("Invalid credentials!");
-		} catch (RuntimeException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
+		User user = authService.login(userLoginDto);
 		String jwtToken = jwtService.generateToken(user);
 		LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
 		return ResponseEntity.ok(loginResponse);

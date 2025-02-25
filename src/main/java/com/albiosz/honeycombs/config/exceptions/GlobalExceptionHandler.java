@@ -1,5 +1,7 @@
 package com.albiosz.honeycombs.config.exceptions;
 
+import com.albiosz.honeycombs.auth.exceptions.LoginNotPossible;
+import com.albiosz.honeycombs.auth.exceptions.InvalidLoginData;
 import com.albiosz.honeycombs.game.exceptions.GameNotModifiable;
 import com.albiosz.honeycombs.game.exceptions.GameNotFound;
 import com.albiosz.honeycombs.game.exceptions.UserNotGameHost;
@@ -21,6 +23,34 @@ public class GlobalExceptionHandler {
 			UserNotGameHost.class
 	})
 	public @ResponseBody ErrorResponse handleBadRequest(
+			RuntimeException ex
+	) {
+		return new ErrorResponse(
+						ex.getMessage(),
+						"",
+						null
+				);
+	}
+
+	@ResponseStatus(HttpStatus.UNAUTHORIZED)
+	@ExceptionHandler(value={
+			InvalidLoginData.class
+	})
+	public @ResponseBody ErrorResponse handleUnauthorized(
+			RuntimeException ex
+	) {
+		return new ErrorResponse(
+						ex.getMessage(),
+						"",
+						null
+				);
+	}
+
+	@ResponseStatus(HttpStatus.FORBIDDEN)
+	@ExceptionHandler(value={
+			LoginNotPossible.class
+	})
+	public @ResponseBody ErrorResponse handleForbidden(
 			RuntimeException ex
 	) {
 		return new ErrorResponse(
