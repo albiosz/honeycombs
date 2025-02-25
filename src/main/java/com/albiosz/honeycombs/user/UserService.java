@@ -1,5 +1,6 @@
 package com.albiosz.honeycombs.user;
 
+import com.albiosz.honeycombs.user.exceptions.UserNotFound;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -15,6 +16,6 @@ public class UserService {
 
 		public User getUserById(UUID uuid) {
 			return userRepository.findById(uuid)
-					.orElseThrow(() -> new RuntimeException("User not found"));
+					.orElseThrow(UserNotFound::new);
 		}
 }

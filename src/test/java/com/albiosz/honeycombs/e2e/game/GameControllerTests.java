@@ -1,7 +1,6 @@
 package com.albiosz.honeycombs.e2e.game;
 
 import com.albiosz.honeycombs.HoneycombsApplication;
-import com.albiosz.honeycombs.auth.JwtService;
 import com.albiosz.honeycombs.auth.dto.UserLoginDto;
 import com.albiosz.honeycombs.config.exceptions.ErrorResponse;
 import com.albiosz.honeycombs.game.Game;
@@ -50,8 +49,6 @@ class GameControllerTests {
 	@Autowired
 	private GameRepository gameRepository;
 
-	@Autowired
-	private JwtService jwtService;
 	private String jwtToken;
 
 	static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
