@@ -37,6 +37,7 @@ import java.time.Instant;
 import static com.albiosz.honeycombs.util.Auth.createURLWithPort;
 import static com.albiosz.honeycombs.util.Auth.sendLoginRequest;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = HoneycombsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -127,22 +128,46 @@ class AuthControllerTests {
 	}
 
 	@Test
-	void testRegister() throws MessagingException {
-		UserRegisterDto userRegisterDto = new UserRegisterDto("email1@email.com", "password", "user1");
-		HttpEntity<UserRegisterDto> entity = new HttpEntity<>(userRegisterDto, headers);
+	@DisplayName("POST /auth/register - email/username already exists")
+	void testRegister_emailExists() {
+		UserRegisterDto userRegisterDto = new UserRegisterDto(user.getUsername(), "password", "new_user");
+		var response = sendRegisterRequest(userRegisterDto, ErrorResponse.class);
 
-		ResponseEntity<String> response = restTemplate.exchange(
-				createURLWithPort(port, "/auth/register"),
-				HttpMethod.POST,
-				entity,
-				String.class
-		);
+		verify(javaMailSender, Mockito.never()).send(Mockito.any(MimeMessage.class));
+		assertEquals(403, response.getStatusCode().value());
+	}
+
+	@Test
+	@DisplayName("POST /auth/register - nickname already exists")
+	void testRegister_nicknameExists() {
+		UserRegisterDto userRegisterDto = new UserRegisterDto("new@email.com", "password", user.getNickname());
+		var response = sendRegisterRequest(userRegisterDto, ErrorResponse.class);
+
+		verify(javaMailSender, Mockito.never()).send(Mockito.any(MimeMessage.class));
+		assertEquals(403, response.getStatusCode().value());
+	}
+
+	@Test
+	@DisplayName("POST /auth/register - success")
+	void testRegister_success() throws MessagingException {
+		UserRegisterDto userRegisterDto = new UserRegisterDto("email1@email.com", "password", "user1");
+
+		ResponseEntity<String> response = sendRegisterRequest(userRegisterDto, String.class);
 
 		verifyEmailSubject("Account Verification");
 
 		assertEquals(200, response.getStatusCode().value());
-		assertNotNull(response.getBody());
-		assertTrue(response.getBody().contains("User registered successfully!"));
+	}
+
+	private <T> ResponseEntity<T> sendRegisterRequest(UserRegisterDto userRegisterDto, Class<T> responseType) {
+		HttpEntity<UserRegisterDto> entity = new HttpEntity<>(userRegisterDto, headers);
+
+		return restTemplate.exchange(
+				createURLWithPort(port, "/auth/register"),
+				HttpMethod.POST,
+				entity,
+				responseType
+		);
 	}
 
 	@Test

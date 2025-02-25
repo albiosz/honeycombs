@@ -32,13 +32,9 @@ public class AuthController {
 
 	// TODO: Is the user correct as a response value? The client will also receive a passowrd (bcrypted) of the user.
 	@PostMapping("/register")
-	public ResponseEntity<String> register(@RequestBody UserRegisterDto userRegisterDto) {
-		try {
-			User user = authService.register(userRegisterDto);
-			return ResponseEntity.ok("User registered successfully! Verification code sent to your email: " + user.getUsername());
-		} catch (RuntimeException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
+	public ResponseEntity<Void> register(@RequestBody UserRegisterDto userRegisterDto) {
+		authService.register(userRegisterDto);
+		return ResponseEntity.ok().build();
 	}
 
 	@PostMapping("/verify")

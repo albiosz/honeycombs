@@ -5,6 +5,7 @@ import com.albiosz.honeycombs.auth.dto.UserRegisterDto;
 import com.albiosz.honeycombs.auth.dto.UserVerifyDto;
 import com.albiosz.honeycombs.auth.exceptions.LoginNotPossible;
 import com.albiosz.honeycombs.auth.exceptions.InvalidLoginData;
+import com.albiosz.honeycombs.auth.exceptions.RegistrationFailed;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -58,8 +59,14 @@ public class AuthService {
 		User user = new User(input.getUsername(), passwordEncoder.encode(input.getPassword()), input.getNickname(), false);
 		user.setVerificationCode(generateVerificationCode());
 		user.setVerificationCodeExpiresAt(Instant.now().plusSeconds(60L * 15));
+		try {
+			userRepository.save(user);
+		} catch (Exception e) {
+			throw new RegistrationFailed();
+		}
+
 		emailService.sendVerificationEmail(user);
-		return userRepository.save(user);
+		return user;
 	}
 
 	public void verify(UserVerifyDto input) {
