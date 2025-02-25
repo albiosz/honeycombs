@@ -3,6 +3,7 @@ package com.albiosz.honeycombs.config.exceptions;
 import com.albiosz.honeycombs.auth.exceptions.LoginNotPossible;
 import com.albiosz.honeycombs.auth.exceptions.InvalidLoginData;
 import com.albiosz.honeycombs.auth.exceptions.RegistrationFailed;
+import com.albiosz.honeycombs.auth.exceptions.VerificationFailed;
 import com.albiosz.honeycombs.game.exceptions.GameNotModifiable;
 import com.albiosz.honeycombs.game.exceptions.GameNotFound;
 import com.albiosz.honeycombs.game.exceptions.UserNotGameHost;
@@ -50,7 +51,8 @@ public class GlobalExceptionHandler {
 	@ResponseStatus(HttpStatus.FORBIDDEN)
 	@ExceptionHandler(value={
 			LoginNotPossible.class,
-			RegistrationFailed.class
+			RegistrationFailed.class,
+			VerificationFailed.class
 	})
 	public @ResponseBody ErrorResponse handleForbidden(
 			RuntimeException ex

@@ -6,6 +6,7 @@ import com.albiosz.honeycombs.auth.dto.UserVerifyDto;
 import com.albiosz.honeycombs.auth.exceptions.LoginNotPossible;
 import com.albiosz.honeycombs.auth.exceptions.InvalidLoginData;
 import com.albiosz.honeycombs.auth.exceptions.RegistrationFailed;
+import com.albiosz.honeycombs.auth.exceptions.VerificationFailed;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -71,13 +72,13 @@ public class AuthService {
 
 	public void verify(UserVerifyDto input) {
 		User user = userRepository.findByUsername(input.getUsername())
-				.orElseThrow(() -> new RuntimeException("User not found"));
+				.orElseThrow(VerificationFailed::new);
 
 		if (user.isVerificationCodeExpired()) {
-			throw new RuntimeException("Verification code expired");
+			throw new VerificationFailed();
 		}
 		if (!user.getVerificationCode().equals(input.getVerificationCode())) {
-			throw new RuntimeException("Invalid verification code");
+			throw new VerificationFailed();
 		}
 		user.setEnabled(true);
 		user.setVerificationCode(null);

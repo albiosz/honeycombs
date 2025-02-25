@@ -38,13 +38,9 @@ public class AuthController {
 	}
 
 	@PostMapping("/verify")
-	public ResponseEntity<String> verify(@RequestBody UserVerifyDto userVerifyDto) {
-		try {
-			authService.verify(userVerifyDto);
-			return ResponseEntity.ok("Account verified successfully!");
-		} catch (RuntimeException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
+	public ResponseEntity<Void> verify(@RequestBody UserVerifyDto userVerifyDto) {
+		authService.verify(userVerifyDto);
+		return ResponseEntity.ok().build();
 	}
 
 	@PostMapping("/resend-verification")

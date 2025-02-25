@@ -171,25 +171,65 @@ class AuthControllerTests {
 	}
 
 	@Test
-	void testVerify() {
+	@DisplayName("POST /auth/verify - no user found")
+	void testVerify_userNotFound() {
+		UserVerifyDto userVerifyDto = new UserVerifyDto("not@found.com", "123456");
+
+		ResponseEntity<ErrorResponse> response = sendVerificationRequest(userVerifyDto, ErrorResponse.class);
+
+		assertEquals(403, response.getStatusCode().value());
+	}
+
+	@Test
+	@DisplayName("POST /auth/verify - verification code expired")
+	void testVerify_verificationCodeExpired() {
+		String verificationCode = "123456";
+		String username = "mock@mock.com";
+		User notVerifiedUser = saveNotVerifiedUser(username, verificationCode);
+		notVerifiedUser.setVerificationCodeExpiresAt(Instant.now().minusSeconds(60L));
+		userRepository.save(notVerifiedUser);
+
+		UserVerifyDto userVerifyDto = new UserVerifyDto(username, verificationCode);
+		var response = sendVerificationRequest(userVerifyDto, ErrorResponse.class);
+
+		assertEquals(403, response.getStatusCode().value());
+	}
+
+	@Test
+	@DisplayName("POST /auth/verify - verification code incorrect")
+	void testVerify_verificationCodeIncorrect() {
+		String verificationCode = "123456";
+		String username = "mock@mock.com";
+		saveNotVerifiedUser(username, verificationCode);
+
+		UserVerifyDto userVerifyDto = new UserVerifyDto(username, "999999");
+		var response = sendVerificationRequest(userVerifyDto, ErrorResponse.class);
+
+		assertEquals(403, response.getStatusCode().value());
+	}
+
+	@Test
+	@DisplayName("POST /auth/verify - success")
+	void testVerify_success() {
 		String verificationCode = "123456";
 		String username = "mock@mock.com";
 		saveNotVerifiedUser(username, verificationCode);
 
 		UserVerifyDto userVerifyDto = new UserVerifyDto(username, verificationCode);
+		var response = sendVerificationRequest(userVerifyDto, Void.class);
 
+		assertEquals(200, response.getStatusCode().value());
+	}
+
+	private <T> ResponseEntity<T> sendVerificationRequest(UserVerifyDto userVerifyDto, Class<T> responseType) {
 		HttpEntity<UserVerifyDto> entity = new HttpEntity<>(userVerifyDto, headers);
 
-		ResponseEntity<String> response = restTemplate.exchange(
+		return restTemplate.exchange(
 				createURLWithPort(port, "/auth/verify"),
 				HttpMethod.POST,
 				entity,
-				String.class
+				responseType
 		);
-
-		assertEquals(200, response.getStatusCode().value());
-		assertNotNull(response.getBody());
-		assertTrue(response.getBody().contains("Account verified successfully!"));
 	}
 
 	@Test
@@ -215,11 +255,11 @@ class AuthControllerTests {
 		assertTrue(response.getBody().contains("Verification code sent successfully!"));
 	}
 
-	void saveNotVerifiedUser(String username, String verificationCode) {
+	User saveNotVerifiedUser(String username, String verificationCode) {
 		User user = new User(username, new BCryptPasswordEncoder().encode("password"), "mock", false);
 		user.setVerificationCode(verificationCode);
 		user.setVerificationCodeExpiresAt(Instant.now().plusSeconds(60L * 15));
-		userRepository.save(user);
+		return userRepository.save(user);
 	}
 
 	void verifyEmailSubject(String emailContent) throws MessagingException {
