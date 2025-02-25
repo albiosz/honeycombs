@@ -3,10 +3,7 @@ package com.albiosz.honeycombs.auth;
 import com.albiosz.honeycombs.auth.dto.UserLoginDto;
 import com.albiosz.honeycombs.auth.dto.UserRegisterDto;
 import com.albiosz.honeycombs.auth.dto.UserVerifyDto;
-import com.albiosz.honeycombs.auth.exceptions.LoginNotPossible;
-import com.albiosz.honeycombs.auth.exceptions.InvalidLoginData;
-import com.albiosz.honeycombs.auth.exceptions.RegistrationFailed;
-import com.albiosz.honeycombs.auth.exceptions.VerificationFailed;
+import com.albiosz.honeycombs.auth.exceptions.*;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -88,10 +85,10 @@ public class AuthService {
 
 	public void resendVerificationCode(String email) {
 		User user = userRepository.findByUsername(email)
-				.orElseThrow(() -> new RuntimeException("User not found"));
+				.orElseThrow(ResendingVerificationCodeFailed::new);
 
 		if (user.isEnabled()) {
-			throw new RuntimeException("Account already verified");
+			throw new ResendingVerificationCodeFailed();
 		}
 		user.setVerificationCode(generateVerificationCode());
 		user.setVerificationCodeExpiresAt(Instant.now().plusSeconds(60L * 15));

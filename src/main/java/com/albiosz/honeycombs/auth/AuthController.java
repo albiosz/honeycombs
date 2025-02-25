@@ -23,14 +23,13 @@ public class AuthController {
 	private final JwtService jwtService;
 
 	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody UserLoginDto userLoginDto) {
+	public ResponseEntity<LoginResponse> login(@RequestBody UserLoginDto userLoginDto) {
 		User user = authService.login(userLoginDto);
 		String jwtToken = jwtService.generateToken(user);
 		LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
 		return ResponseEntity.ok(loginResponse);
 	}
 
-	// TODO: Is the user correct as a response value? The client will also receive a passowrd (bcrypted) of the user.
 	@PostMapping("/register")
 	public ResponseEntity<Void> register(@RequestBody UserRegisterDto userRegisterDto) {
 		authService.register(userRegisterDto);
@@ -44,12 +43,8 @@ public class AuthController {
 	}
 
 	@PostMapping("/resend-verification")
-	public ResponseEntity<String> resendVerification(@RequestBody UserResendVerificationDto userResendVerificationDto) {
-		try {
-			authService.resendVerificationCode(userResendVerificationDto.getUsername());
-			return ResponseEntity.ok("Verification code sent successfully!");
-		} catch (RuntimeException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
+	public ResponseEntity<Void> resendVerification(@RequestBody UserResendVerificationDto userResendVerificationDto) {
+		authService.resendVerificationCode(userResendVerificationDto.getUsername());
+		return ResponseEntity.ok().build();
 	}
 }

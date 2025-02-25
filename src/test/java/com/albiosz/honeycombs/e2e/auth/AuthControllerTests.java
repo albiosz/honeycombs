@@ -233,26 +233,44 @@ class AuthControllerTests {
 	}
 
 	@Test
-	void testResendVerificationCode() throws MessagingException {
+	@DisplayName("POST /auth/resend-verification - user not found")
+	void testResendVerificationCode_userNotFound() {
+		UserResendVerificationDto userResendVerificationDto = new UserResendVerificationDto("not@existent.com");
+		ResponseEntity<ErrorResponse> response = sendResendingVerificationCodeException(userResendVerificationDto, ErrorResponse.class);
+		assertEquals(403, response.getStatusCode().value());
+	}
+
+	@Test
+	@DisplayName("POST /auth/resend-verification - user already verified")
+	void testResendVerificationCode_userAlreadyVerified() {
+		UserResendVerificationDto userResendVerificationDto = new UserResendVerificationDto(user.getUsername());
+		ResponseEntity<ErrorResponse> response = sendResendingVerificationCodeException(userResendVerificationDto, ErrorResponse.class);
+		assertEquals(403, response.getStatusCode().value());
+	}
+
+	@Test
+	@DisplayName("POST /auth/resend-verification - successful")
+	void testResendVerificationCode_success() throws MessagingException {
 		String verificationCode = "123456";
 		String username = "mock@mock.com";
 		saveNotVerifiedUser(username, verificationCode);
 
 		UserResendVerificationDto userResendVerificationDto = new UserResendVerificationDto(username);
+		var response = sendResendingVerificationCodeException(userResendVerificationDto, Void.class);
+
+		verifyEmailSubject("Account Verification");
+		assertEquals(200, response.getStatusCode().value());
+	}
+
+	private <T> ResponseEntity<T> sendResendingVerificationCodeException(UserResendVerificationDto userResendVerificationDto, Class<T> responseType) {
 		HttpEntity<UserResendVerificationDto> entity = new HttpEntity<>(userResendVerificationDto, headers);
 
-		ResponseEntity<String> response = restTemplate.exchange(
+		return restTemplate.exchange(
 				createURLWithPort(port, "/auth/resend-verification"),
 				HttpMethod.POST,
 				entity,
-				String.class
+				responseType
 		);
-
-		verifyEmailSubject("Account Verification");
-
-		assertEquals(200, response.getStatusCode().value());
-		assertNotNull(response.getBody());
-		assertTrue(response.getBody().contains("Verification code sent successfully!"));
 	}
 
 	User saveNotVerifiedUser(String username, String verificationCode) {
