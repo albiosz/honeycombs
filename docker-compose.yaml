@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:16.6-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=passwd
+      - POSTGRES_USER=user
+      - POSTGRES_DB=postgresql
+
+  honeycombs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: honeycombs
+    image: honeycombs
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - DB_URL=jdbc:postgresql://postgres:5432/postgresql
+    depends_on:
+      - postgres
+
+volumes:
+    data:
