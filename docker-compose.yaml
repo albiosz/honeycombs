@@ -6,9 +6,9 @@ services:
     volumes:
       - data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_PASSWORD=passwd
-      - POSTGRES_USER=user
-      - POSTGRES_DB=postgresql
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
 
   honeycombs:
     build:
@@ -18,10 +18,15 @@ services:
     image: honeycombs
     ports:
       - "8080:8080"
-    env_file:
-      - .env
     environment:
-      - DB_URL=jdbc:postgresql://postgres:5432/postgresql
+      - JWT_SECRET=${JWT_SECRET}
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_NAME}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
     depends_on:
       - postgres
 
