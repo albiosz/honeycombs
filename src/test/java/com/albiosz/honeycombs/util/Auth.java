@@ -20,7 +20,7 @@ public class Auth {
 	public static String loginAndGetToken(int port, UserRepository userRepository) {
 		when(userRepository.findByUsername("email@email.com")).thenReturn(Optional.of(new User("email@email.com", new BCryptPasswordEncoder().encode("password"), "user", true)));
 
-		String url = createURLWithPort(port, "/auth/login");
+		String url = createURLWithPort(port, "/api/auth/login");
 		UserLoginDto credentials = new UserLoginDto("email@email.com", "password");
 
 		ResponseEntity<LoginResponse> response = sendLoginRequest(url, credentials, LoginResponse.class);

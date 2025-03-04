@@ -91,44 +91,44 @@ class AuthControllerTests {
 	}
 
 	@Test
-	@DisplayName("POST /auth/login - invalid credentials")
+	@DisplayName("POST /api/auth/login - invalid credentials")
 	void testLogin_userNotFound() {
-		String url = createURLWithPort(port, "/auth/login");
+		String url = createURLWithPort(port, "/api/auth/login");
 		UserLoginDto userLoginDto = new UserLoginDto("not@existent.com", "pass");
 		ResponseEntity<ErrorResponse> response = sendLoginRequest(url, userLoginDto, ErrorResponse.class);
 		assertEquals(401, response.getStatusCode().value());
 	}
 
 	@Test
-	@DisplayName("POST /auth/login - user not enabled")
+	@DisplayName("POST /api/auth/login - user not enabled")
 	void testLogin_userNotEnabled() {
 		User createdUser = userRepository.save(new User("new@email.com", new BCryptPasswordEncoder().encode("password"), "new_user", false));
-		String url = createURLWithPort(port, "/auth/login");
+		String url = createURLWithPort(port, "/api/auth/login");
 		UserLoginDto userLoginDto = new UserLoginDto(createdUser.getUsername(), "password");
 		ResponseEntity<ErrorResponse> response = sendLoginRequest(url, userLoginDto, ErrorResponse.class);
 		assertEquals(403, response.getStatusCode().value());
 	}
 
 	@Test
-	@DisplayName("POST /auth/login - invalid password")
+	@DisplayName("POST /api/auth/login - invalid password")
 	void testLogin_invalidPassword() {
-		String url = createURLWithPort(port, "/auth/login");
+		String url = createURLWithPort(port, "/api/auth/login");
 		UserLoginDto userLoginDto = new UserLoginDto(user.getUsername(), "invalid_password");
 		ResponseEntity<ErrorResponse> response = sendLoginRequest(url, userLoginDto, ErrorResponse.class);
 		assertEquals(401, response.getStatusCode().value());
 	}
 
 	@Test
-	@DisplayName("POST /auth/login - success")
+	@DisplayName("POST /api/auth/login - success")
 	void testLogin() {
-		String url = createURLWithPort(port, "/auth/login");
+		String url = createURLWithPort(port, "/api/auth/login");
 		UserLoginDto userLoginDto = new UserLoginDto("email@email.com", "password");
 		ResponseEntity<LoginResponse> response = sendLoginRequest(url, userLoginDto, LoginResponse.class);
 		assertEquals(200, response.getStatusCode().value());
 	}
 
 	@Test
-	@DisplayName("POST /auth/register - email/username already exists")
+	@DisplayName("POST /api/auth/register - email/username already exists")
 	void testRegister_emailExists() {
 		UserRegisterDto userRegisterDto = new UserRegisterDto(user.getUsername(), "password", "new_user");
 		var response = sendRegisterRequest(userRegisterDto, ErrorResponse.class);
@@ -138,7 +138,7 @@ class AuthControllerTests {
 	}
 
 	@Test
-	@DisplayName("POST /auth/register - nickname already exists")
+	@DisplayName("POST /api/auth/register - nickname already exists")
 	void testRegister_nicknameExists() {
 		UserRegisterDto userRegisterDto = new UserRegisterDto("new@email.com", "password", user.getNickname());
 		var response = sendRegisterRequest(userRegisterDto, ErrorResponse.class);
@@ -148,7 +148,7 @@ class AuthControllerTests {
 	}
 
 	@Test
-	@DisplayName("POST /auth/register - success")
+	@DisplayName("POST /api/auth/register - success")
 	void testRegister_success() throws MessagingException {
 		UserRegisterDto userRegisterDto = new UserRegisterDto("email1@email.com", "password", "user1");
 
@@ -163,7 +163,7 @@ class AuthControllerTests {
 		HttpEntity<UserRegisterDto> entity = new HttpEntity<>(userRegisterDto, headers);
 
 		return restTemplate.exchange(
-				createURLWithPort(port, "/auth/register"),
+				createURLWithPort(port, "/api/auth/register"),
 				HttpMethod.POST,
 				entity,
 				responseType
@@ -171,7 +171,7 @@ class AuthControllerTests {
 	}
 
 	@Test
-	@DisplayName("POST /auth/verify - no user found")
+	@DisplayName("POST /api/auth/verify - no user found")
 	void testVerify_userNotFound() {
 		UserVerifyDto userVerifyDto = new UserVerifyDto("not@found.com", "123456");
 
@@ -181,7 +181,7 @@ class AuthControllerTests {
 	}
 
 	@Test
-	@DisplayName("POST /auth/verify - verification code expired")
+	@DisplayName("POST /api/auth/verify - verification code expired")
 	void testVerify_verificationCodeExpired() {
 		String verificationCode = "123456";
 		String username = "mock@mock.com";
@@ -196,7 +196,7 @@ class AuthControllerTests {
 	}
 
 	@Test
-	@DisplayName("POST /auth/verify - verification code incorrect")
+	@DisplayName("POST /api/auth/verify - verification code incorrect")
 	void testVerify_verificationCodeIncorrect() {
 		String verificationCode = "123456";
 		String username = "mock@mock.com";
@@ -209,7 +209,7 @@ class AuthControllerTests {
 	}
 
 	@Test
-	@DisplayName("POST /auth/verify - success")
+	@DisplayName("POST /api/auth/verify - success")
 	void testVerify_success() {
 		String verificationCode = "123456";
 		String username = "mock@mock.com";
@@ -225,7 +225,7 @@ class AuthControllerTests {
 		HttpEntity<UserVerifyDto> entity = new HttpEntity<>(userVerifyDto, headers);
 
 		return restTemplate.exchange(
-				createURLWithPort(port, "/auth/verify"),
+				createURLWithPort(port, "/api/auth/verify"),
 				HttpMethod.POST,
 				entity,
 				responseType
@@ -233,7 +233,7 @@ class AuthControllerTests {
 	}
 
 	@Test
-	@DisplayName("POST /auth/resend-verification - user not found")
+	@DisplayName("POST /api/auth/resend-verification - user not found")
 	void testResendVerificationCode_userNotFound() {
 		UserResendVerificationDto userResendVerificationDto = new UserResendVerificationDto("not@existent.com");
 		ResponseEntity<ErrorResponse> response = sendResendingVerificationCodeException(userResendVerificationDto, ErrorResponse.class);
@@ -241,7 +241,7 @@ class AuthControllerTests {
 	}
 
 	@Test
-	@DisplayName("POST /auth/resend-verification - user already verified")
+	@DisplayName("POST /api/auth/resend-verification - user already verified")
 	void testResendVerificationCode_userAlreadyVerified() {
 		UserResendVerificationDto userResendVerificationDto = new UserResendVerificationDto(user.getUsername());
 		ResponseEntity<ErrorResponse> response = sendResendingVerificationCodeException(userResendVerificationDto, ErrorResponse.class);
@@ -249,7 +249,7 @@ class AuthControllerTests {
 	}
 
 	@Test
-	@DisplayName("POST /auth/resend-verification - successful")
+	@DisplayName("POST /api/auth/resend-verification - successful")
 	void testResendVerificationCode_success() throws MessagingException {
 		String verificationCode = "123456";
 		String username = "mock@mock.com";
@@ -266,7 +266,7 @@ class AuthControllerTests {
 		HttpEntity<UserResendVerificationDto> entity = new HttpEntity<>(userResendVerificationDto, headers);
 
 		return restTemplate.exchange(
-				createURLWithPort(port, "/auth/resend-verification"),
+				createURLWithPort(port, "/api/auth/resend-verification"),
 				HttpMethod.POST,
 				entity,
 				responseType

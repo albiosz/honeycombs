@@ -82,13 +82,11 @@ class GameControllerTests {
 
 	@BeforeEach
 	void setUp() {
-//		String jdbcUrl = postgres.getJdbcUrl();
-
 		gameRepository.deleteAll();
 		userRepository.deleteAll();
 		user = userRepository.save(new User("email@email.com", new BCryptPasswordEncoder().encode("password"), "user", true));
 
-		String url = createURLWithPort(port, "/auth/login");
+		String url = createURLWithPort(port, "/api/auth/login");
 		UserLoginDto userLoginDto = new UserLoginDto(user.getUsername(), "password");
 		jwtToken = sendLoginRequest(url, userLoginDto, LoginResponse.class).getBody().getToken();
 
