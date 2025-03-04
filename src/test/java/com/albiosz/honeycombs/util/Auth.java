@@ -1,6 +1,6 @@
 package com.albiosz.honeycombs.util;
 
-import com.albiosz.honeycombs.auth.dto.UserLoginDto;
+import com.albiosz.honeycombs.auth.dto.UserLoginRequest;
 import com.albiosz.honeycombs.auth.response.LoginResponse;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
@@ -21,7 +21,7 @@ public class Auth {
 		when(userRepository.findByUsername("email@email.com")).thenReturn(Optional.of(new User("email@email.com", new BCryptPasswordEncoder().encode("password"), "user", true)));
 
 		String url = createURLWithPort(port, "/api/auth/login");
-		UserLoginDto credentials = new UserLoginDto("email@email.com", "password");
+		UserLoginRequest credentials = new UserLoginRequest("email@email.com", "password");
 
 		ResponseEntity<LoginResponse> response = sendLoginRequest(url, credentials, LoginResponse.class);
 
@@ -31,11 +31,11 @@ public class Auth {
 
 	}
 
-	public static <T> ResponseEntity<T> sendLoginRequest(String url, UserLoginDto credentials, Class<T> responseType) {
+	public static <T> ResponseEntity<T> sendLoginRequest(String url, UserLoginRequest credentials, Class<T> responseType) {
 		TestRestTemplate restTemplate = new TestRestTemplate();
 		HttpHeaders headers = new HttpHeaders();
 
-		HttpEntity<UserLoginDto> entity = new HttpEntity<>(credentials, headers);
+		HttpEntity<UserLoginRequest> entity = new HttpEntity<>(credentials, headers);
 
 		return restTemplate.exchange(
 				url,

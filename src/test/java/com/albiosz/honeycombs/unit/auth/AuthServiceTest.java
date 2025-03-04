@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import com.albiosz.honeycombs.auth.dto.UserLoginDto;
+import com.albiosz.honeycombs.auth.dto.UserLoginRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
@@ -34,7 +34,7 @@ class AuthServiceTest {
 	@Test
 	void testLogin() {
 		AuthService authService = new AuthService(userRepositoryMock, null, authenticationManager, null);
-		User returnedUser = authService.login(new UserLoginDto("user", "password"));
+		User returnedUser = authService.login(new UserLoginRequest("user", "password"));
 
 		assert(returnedUser.getUsername().equals("user"));
 		assert(returnedUser.getPassword().equals("password"));

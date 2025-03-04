@@ -1,8 +1,8 @@
 package com.albiosz.honeycombs.auth;
 
-import com.albiosz.honeycombs.auth.dto.UserLoginDto;
-import com.albiosz.honeycombs.auth.dto.UserRegisterDto;
-import com.albiosz.honeycombs.auth.dto.UserVerifyDto;
+import com.albiosz.honeycombs.auth.dto.UserLoginRequest;
+import com.albiosz.honeycombs.auth.dto.UserRegisterRequest;
+import com.albiosz.honeycombs.auth.dto.UserVerifyRequest;
 import com.albiosz.honeycombs.auth.exceptions.*;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
@@ -29,7 +29,7 @@ public class AuthService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	public User login(UserLoginDto input) throws AuthenticationException {
+	public User login(UserLoginRequest input) throws AuthenticationException {
 		User user = userRepository.findByUsername(input.getUsername())
 				.orElseThrow(InvalidLoginData::new);
 
@@ -53,7 +53,7 @@ public class AuthService {
 		return user;
 	}
 
-	public User register(UserRegisterDto input) {
+	public User register(UserRegisterRequest input) {
 		User user = new User(input.getUsername(), passwordEncoder.encode(input.getPassword()), input.getNickname(), false);
 		user.setVerificationCode(generateVerificationCode());
 		user.setVerificationCodeExpiresAt(Instant.now().plusSeconds(60L * 15));
@@ -67,7 +67,7 @@ public class AuthService {
 		return user;
 	}
 
-	public void verify(UserVerifyDto input) {
+	public void verify(UserVerifyRequest input) {
 		User user = userRepository.findByUsername(input.getUsername())
 				.orElseThrow(VerificationFailed::new);
 

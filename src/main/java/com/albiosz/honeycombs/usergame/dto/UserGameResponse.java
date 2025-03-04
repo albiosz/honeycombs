@@ -14,11 +14,8 @@ import java.util.List;
 
 @Setter
 @Getter
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+// @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class UserGameResponse {
-
-    @JsonProperty(required = true)
-    private UserGameId id;
 
     @JsonProperty(required = true)
     private UserResponse user;

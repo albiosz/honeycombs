@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserVerifyDto {
+public class UserVerifyRequest {
 	private String username;
 	private String verificationCode;
 }

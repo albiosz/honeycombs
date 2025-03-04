@@ -1,6 +1,8 @@
 package com.albiosz.honeycombs.user;
 
 import com.albiosz.honeycombs.user.dto.UserResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +26,7 @@ public class UserController {
 	}
 
 	@GetMapping("/{uuid}")
+	@Operation(security = { @SecurityRequirement(name = "bearer-key") })
 	public ResponseEntity<UserResponse> getUserById(@PathVariable UUID uuid) {
 		User user = userService.getUserById(uuid);
 		UserResponse userResponse = UserResponse.fromUser(user, modelMapper);

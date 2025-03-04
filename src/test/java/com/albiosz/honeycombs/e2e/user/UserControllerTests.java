@@ -1,7 +1,7 @@
 package com.albiosz.honeycombs.e2e.user;
 
 import com.albiosz.honeycombs.HoneycombsApplication;
-import com.albiosz.honeycombs.auth.dto.UserLoginDto;
+import com.albiosz.honeycombs.auth.dto.UserLoginRequest;
 import com.albiosz.honeycombs.auth.response.LoginResponse;
 import com.albiosz.honeycombs.config.exceptions.ErrorResponse;
 import com.albiosz.honeycombs.user.User;
@@ -77,7 +77,7 @@ public class UserControllerTests {
 		user = userRepository.save(new User("email@email.com", new BCryptPasswordEncoder().encode("password"), "user", true));
 
 		String url = createURLWithPort(port, "/api/auth/login");
-		UserLoginDto userLoginDto = new UserLoginDto(user.getUsername(), "password");
+		UserLoginRequest userLoginDto = new UserLoginRequest(user.getUsername(), "password");
 		jwtToken = sendLoginRequest(url, userLoginDto, LoginResponse.class).getBody().getToken();
 
 		restTemplate = new TestRestTemplate();

@@ -1,14 +1,13 @@
 package com.albiosz.honeycombs.auth;
 
-import com.albiosz.honeycombs.auth.dto.UserLoginDto;
-import com.albiosz.honeycombs.auth.dto.UserRegisterDto;
-import com.albiosz.honeycombs.auth.dto.UserResendVerificationDto;
-import com.albiosz.honeycombs.auth.dto.UserVerifyDto;
+import com.albiosz.honeycombs.auth.dto.UserLoginRequest;
+import com.albiosz.honeycombs.auth.dto.UserRegisterRequest;
+import com.albiosz.honeycombs.auth.dto.UserResendVerificationRequest;
+import com.albiosz.honeycombs.auth.dto.UserVerifyRequest;
 import com.albiosz.honeycombs.auth.response.LoginResponse;
 import com.albiosz.honeycombs.user.User;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,28 +22,28 @@ public class AuthController {
 	private final JwtService jwtService;
 
 	@PostMapping("/login")
-	public ResponseEntity<LoginResponse> login(@RequestBody UserLoginDto userLoginDto) {
-		User user = authService.login(userLoginDto);
+	public ResponseEntity<LoginResponse> login(@RequestBody UserLoginRequest userLoginRequest) {
+		User user = authService.login(userLoginRequest);
 		String jwtToken = jwtService.generateToken(user);
 		LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
 		return ResponseEntity.ok(loginResponse);
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<Void> register(@RequestBody UserRegisterDto userRegisterDto) {
-		authService.register(userRegisterDto);
+	public ResponseEntity<Void> register(@RequestBody UserRegisterRequest userRegisterRequest) {
+		authService.register(userRegisterRequest);
 		return ResponseEntity.ok().build();
 	}
 
 	@PostMapping("/verify")
-	public ResponseEntity<Void> verify(@RequestBody UserVerifyDto userVerifyDto) {
-		authService.verify(userVerifyDto);
+	public ResponseEntity<Void> verify(@RequestBody UserVerifyRequest userVerifyRequest) {
+		authService.verify(userVerifyRequest);
 		return ResponseEntity.ok().build();
 	}
 
 	@PostMapping("/resend-verification")
-	public ResponseEntity<Void> resendVerification(@RequestBody UserResendVerificationDto userResendVerificationDto) {
-		authService.resendVerificationCode(userResendVerificationDto.getUsername());
+	public ResponseEntity<Void> resendVerification(@RequestBody UserResendVerificationRequest userResendVerificationRequest) {
+		authService.resendVerificationCode(userResendVerificationRequest.getUsername());
 		return ResponseEntity.ok().build();
 	}
 }

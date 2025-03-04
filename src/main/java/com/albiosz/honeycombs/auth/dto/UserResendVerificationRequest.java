@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResendVerificationDto {
+public class UserResendVerificationRequest {
 	private String username;
 }

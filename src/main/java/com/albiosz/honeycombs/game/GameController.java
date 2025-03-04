@@ -3,6 +3,8 @@ package com.albiosz.honeycombs.game;
 
 import com.albiosz.honeycombs.game.dto.GameRequest;
 import com.albiosz.honeycombs.game.dto.GameResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,7 @@ public class GameController {
 	}
 
 	@GetMapping("/{id}")
+	@Operation(security = { @SecurityRequirement(name = "bearer-key") })
 	public ResponseEntity<GameResponse> getGameById(@PathVariable long id) {
 		Game game = gameService.getGameById(id);
 		GameResponse gameResponse = GameResponse.fromGame(game, modelMapper);
@@ -31,6 +34,7 @@ public class GameController {
 	}
 
 	@GetMapping
+	@Operation(security = { @SecurityRequirement(name = "bearer-key") })
 	public ResponseEntity<List<GameResponse>> getGamesByState(State state) {
 		List<Game> games = gameService.getGamesByState(state);
 		List<GameResponse> gameResponses = games.stream()
@@ -40,6 +44,7 @@ public class GameController {
 	}
 
 	@PostMapping
+	@Operation(security = { @SecurityRequirement(name = "bearer-key") })
 	public ResponseEntity<GameResponse> createGame(@RequestBody GameRequest gameRequest) {
 		Game createdGame = gameService.createGame(gameRequest.getName());
 		GameResponse gameResponse = GameResponse.fromGame(createdGame, modelMapper);
@@ -47,11 +52,13 @@ public class GameController {
 	}
 
 	@DeleteMapping("/{id}")
+	@Operation(security = { @SecurityRequirement(name = "bearer-key") })
 	public void deleteGameById(@PathVariable long id) {
 		gameService.deleteGameById(id);
 	}
 
 	@PostMapping("/{id}/user")
+	@Operation(security = { @SecurityRequirement(name = "bearer-key") })
 	public ResponseEntity<GameResponse> addUser(@PathVariable long id) {
 		Game game = gameService.addUser(id);
 		GameResponse gameResponse = GameResponse.fromGame(game, modelMapper);
