@@ -1,6 +1,7 @@
 package com.albiosz.honeycombs.game;
 
 
+import com.albiosz.honeycombs.game.dto.GameRequest;
 import com.albiosz.honeycombs.game.dto.GameResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -30,14 +31,19 @@ public class GameController {
 	}
 
 	@GetMapping
-	public List<Game> getGamesByState(State state) {
-		return gameService.getGamesByState(state);
+	public ResponseEntity<List<GameResponse>> getGamesByState(State state) {
+		List<Game> games = gameService.getGamesByState(state);
+		List<GameResponse> gameResponses = games.stream()
+				.map(game -> GameResponse.fromGame(game, modelMapper))
+				.toList();
+		return ResponseEntity.ok(gameResponses);
 	}
 
 	@PostMapping
-	public ResponseEntity<Game> createGame(@RequestBody GameDto gameDto) {
-		Game createdGame = gameService.createGame(gameDto.getName());
-		return ResponseEntity.status(201).body(createdGame);
+	public ResponseEntity<GameResponse> createGame(@RequestBody GameRequest gameRequest) {
+		Game createdGame = gameService.createGame(gameRequest.getName());
+		GameResponse gameResponse = GameResponse.fromGame(createdGame, modelMapper);
+		return ResponseEntity.status(201).body(gameResponse);
 	}
 
 	@DeleteMapping("/{id}")
@@ -45,9 +51,10 @@ public class GameController {
 		gameService.deleteGameById(id);
 	}
 
-	@PutMapping("/{id}/add-user")
-	public ResponseEntity<Game> addUser(@PathVariable long id) {
+	@PostMapping("/{id}/user")
+	public ResponseEntity<GameResponse> addUser(@PathVariable long id) {
 		Game game = gameService.addUser(id);
-		return ResponseEntity.ok(game);
+		GameResponse gameResponse = GameResponse.fromGame(game, modelMapper);
+		return ResponseEntity.ok(gameResponse);
 	}
 }

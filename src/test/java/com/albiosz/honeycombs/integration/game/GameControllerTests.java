@@ -6,7 +6,7 @@ import com.albiosz.honeycombs.game.State;
 import com.albiosz.honeycombs.game.dto.GameResponse;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
-import com.albiosz.honeycombs.util.JsonSchema;
+import com.albiosz.honeycombs.util.Json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,9 +79,7 @@ class GameControllerTests {
 
 		assertEquals(200, response.getStatusCode().value());
 
-		String jsonSchema = assertDoesNotThrow(() -> JsonSchema.generateJsonSchema(GameResponse.class));
-		boolean isValid = assertDoesNotThrow(() -> JsonSchema.isValidJson(response.getBody(), jsonSchema));
-		assertTrue(isValid);
+		assertTrue(Json.isValid(response.getBody(), GameResponse.class));
 
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModule(new JavaTimeModule());

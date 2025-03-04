@@ -5,12 +5,15 @@ import com.albiosz.honeycombs.auth.dto.UserLoginDto;
 import com.albiosz.honeycombs.auth.response.LoginResponse;
 import com.albiosz.honeycombs.config.exceptions.ErrorResponse;
 import com.albiosz.honeycombs.game.Game;
-import com.albiosz.honeycombs.game.GameDto;
+import com.albiosz.honeycombs.game.dto.GameRequest;
 import com.albiosz.honeycombs.game.GameRepository;
 import com.albiosz.honeycombs.game.State;
+import com.albiosz.honeycombs.game.dto.GameResponse;
 import com.albiosz.honeycombs.turn.Turn;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
+import com.albiosz.honeycombs.util.Json;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -49,6 +52,9 @@ class GameControllerTests {
 
 	@Autowired
 	private GameRepository gameRepository;
+
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	private String jwtToken;
 
@@ -95,7 +101,7 @@ class GameControllerTests {
 	}
 
 	@Test
-	@DisplayName("Game does not exist")
+	@DisplayName("GET /api/game/{id} - Game does not exist")
 	void testGetGameById_GameNotFound() {
 		ResponseEntity<ErrorResponse> response = sendGetGamesRequest(1, ErrorResponse.class);
 
@@ -104,12 +110,15 @@ class GameControllerTests {
 	}
 
 	@Test
-	@DisplayName("Game exists")
+	@DisplayName("GET /api/game/{id} - Game exists")
 	void testGetGameById() {
 		Game game = gameRepository.save(new Game());
 
-		ResponseEntity<Game> response = sendGetGamesRequest(game.getId(), Game.class);
-		Game responseGame = response.getBody();
+		ResponseEntity<String> response = sendGetGamesRequest(game.getId(), String.class);
+
+		assertTrue(Json.isValid(response.getBody(), GameResponse.class));
+
+		GameResponse responseGame = Json.unmarshal(response.getBody(), GameResponse.class, objectMapper);
 
 		assertEquals(200, response.getStatusCode().value());
 		assertEquals(game.getId(), responseGame.getId());
@@ -131,6 +140,7 @@ class GameControllerTests {
 	}
 
 	@Test
+	@DisplayName("GET /api/game - Get games with State=CREATED")
 	void testGetGamesByState() {
 		List<State> states = List.of(State.CREATED, State.IN_PROGRESS, State.FINISHED, State.FINISHED);
 		for (State state : states) {
@@ -143,37 +153,43 @@ class GameControllerTests {
 		headers.setBearerAuth(jwtToken);
 		headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
 
-		HttpEntity<?> entity = new HttpEntity<>(null, headers);
+		HttpEntity<Void> entity = new HttpEntity<>(null, headers);
 
-		ResponseEntity<Game[]> response = restTemplate.exchange(
+		ResponseEntity<String> response = restTemplate.exchange(
 				url,
 				HttpMethod.GET,
 				entity,
-				Game[].class
+				String.class
 		);
-		Game[] responseGames = response.getBody();
+
+		assertTrue(Json.isValid(response.getBody(), Game[].class));
+		Game[] responseGames = Json.unmarshal(response.getBody(), Game[].class, objectMapper);
 
 		assertEquals(200, response.getStatusCode().value());
 		assertEquals(1, responseGames.length);
 	}
 
 	@Test
+	@DisplayName("POST /api/game - Create game")
 	void testCreateGame() {
 		String url = createURLWithPort(port, "/api/game");
 		headers.setBearerAuth(jwtToken);
 		headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
 
-		GameDto gameDto = new GameDto("Game");
+		GameRequest gameRequest = new GameRequest("Game");
 
-		HttpEntity<?> entity = new HttpEntity<>(gameDto, headers);
+		HttpEntity<GameRequest> entity = new HttpEntity<>(gameRequest, headers);
 
-		ResponseEntity<Game> response = restTemplate.exchange(
+		ResponseEntity<String> response = restTemplate.exchange(
 				url,
 				HttpMethod.POST,
 				entity,
-				Game.class
+				String.class
 		);
-		Game responseGame = response.getBody();
+
+
+		assertTrue(Json.isValid(response.getBody(), Game.class));
+		Game responseGame = Json.unmarshal(response.getBody(), Game.class, objectMapper);
 
 		assertEquals(201, response.getStatusCode().value());
 		assertNotNull(responseGame);
@@ -183,7 +199,7 @@ class GameControllerTests {
 	}
 
 	@Test
-	@DisplayName("Game cannot be deleted, it already started")
+	@DisplayName("DELETE /api/game - Game cannot be deleted, it already started")
 	void testDeleteGameById_GameAlreadyStarted() {
 		Game game = gameRepository.save(new Game("Game to delete"));
 		game.setState(State.IN_PROGRESS);
@@ -197,7 +213,7 @@ class GameControllerTests {
 	}
 
 	@Test
-	@DisplayName("Game cannot be deleted, user is not in the game")
+	@DisplayName("DELETE /api/game - Game cannot be deleted, user is not in the game")
 	void testDeleteGameById_UserNotPart() {
 		Game game = gameRepository.save(new Game("Game to delete"));
 
@@ -209,7 +225,7 @@ class GameControllerTests {
 	}
 
 	@Test
-	@DisplayName("User in the game but is not a host")
+	@DisplayName("DELETE /api/game - User in the game but is not a host")
 	void testDeleteGameById_UserNotHost() {
 		Game game = gameRepository.save(new Game("Game to delete"));
 
@@ -225,7 +241,7 @@ class GameControllerTests {
 	}
 
 	@Test
-	@DisplayName("User in the game and is host = game can be delted")
+	@DisplayName("DELETE /api/game - User in the game and is host = game can be deleted")
 	void testDeleteGameById() {
 		String jdbcUrl = postgres.getJdbcUrl();
 
@@ -258,7 +274,7 @@ class GameControllerTests {
 	}
 
 	@Test
-	@DisplayName("Game not found")
+	@DisplayName("POST /api/game/{$id}/user - Game not found")
 	void testAddUser_GameNotFound() {
 		ResponseEntity<ErrorResponse> response = sendAddUserRequest(1, ErrorResponse.class);
 
@@ -267,7 +283,7 @@ class GameControllerTests {
 	}
 
 	@Test
-	@DisplayName("Game already started, user cannot join the game")
+	@DisplayName("POST /api/game/{$id}/user - Game already started, user cannot join the game")
 	void testAddUser_GameAlreadyStarted() {
 		Game game = gameRepository.save(new Game());
 		game.setState(State.IN_PROGRESS);
@@ -283,14 +299,17 @@ class GameControllerTests {
 	}
 
 	@Test
-	@DisplayName("User joins the game successfully")
+	@DisplayName("POST /api/game/{$id}/user - User joins the game successfully")
 	void testAddUser() {
 		Game game = gameRepository.save(new Game());
 
-		ResponseEntity<Game> response = sendAddUserRequest(game.getId(), Game.class);
-		Game responseGame = response.getBody();
-
+		ResponseEntity<String> response = sendAddUserRequest(game.getId(), String.class);
 		assertEquals(200, response.getStatusCode().value());
+
+		assertTrue(Json.isValid(response.getBody(), GameResponse.class));
+
+		GameResponse responseGame = Json.unmarshal(response.getBody(), GameResponse.class, objectMapper);
+
 		assertEquals(1, responseGame.getUserGames().size());
 		assertNotNull(responseGame.getUserGames().get(user.getId()).getUser());
 
@@ -299,7 +318,7 @@ class GameControllerTests {
 	}
 
 	private <T> ResponseEntity<T> sendAddUserRequest(long gameId, Class<T> expectedReturnType) {
-		String url = createURLWithPort(port, String.format("/api/game/%d/add-user", gameId));
+		String url = createURLWithPort(port, String.format("/api/game/%d/user", gameId));
 		headers.setBearerAuth(jwtToken);
 		headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
 
@@ -307,7 +326,7 @@ class GameControllerTests {
 
 		return restTemplate.exchange(
 				url,
-				HttpMethod.PUT,
+				HttpMethod.POST,
 				entity,
 				expectedReturnType
 		);

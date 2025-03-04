@@ -9,6 +9,7 @@ import com.github.victools.jsonschema.module.jackson.JacksonOption;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -36,8 +37,6 @@ public class JsonSchema {
         JSONObject rawJsonSchema = new JSONObject(new JSONTokener(jsonSchema));
         rawJsonSchema.put("additionalProperties", false);
 
-        JSONObject json = new JSONObject(new JSONTokener(jsonToValidate));
-
         // Load and validate schema
         SchemaLoader loader = SchemaLoader.builder()
                 .schemaJson(rawJsonSchema)
@@ -45,6 +44,8 @@ public class JsonSchema {
                 .build();
 
         Schema schema = loader.load().build();
+
+        Object json = getJsonObjectOrArray(jsonToValidate);
         try {
             schema.validate(json); // Will throw an exception if invalid
         } catch (ValidationException e) {
@@ -56,5 +57,15 @@ public class JsonSchema {
             return false;
         }
         return true;
+    }
+
+    private static Object getJsonObjectOrArray(String json) {
+        if (json.startsWith("{")) {
+            return new JSONObject(new JSONTokener(json));
+        } else if (json.startsWith("[")) {
+            return new JSONArray(new JSONTokener(json));
+        }
+
+        throw new IllegalArgumentException("Invalid JSON");
     }
 }

@@ -1,4 +1,4 @@
-package com.albiosz.honeycombs.game;
+package com.albiosz.honeycombs.game.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GameDto {
+public class GameRequest {
 		private String name;
 }
