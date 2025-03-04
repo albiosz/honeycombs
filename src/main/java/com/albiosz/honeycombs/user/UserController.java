@@ -1,5 +1,7 @@
 package com.albiosz.honeycombs.user;
 
+import com.albiosz.honeycombs.user.dto.UserResponse;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,15 +14,19 @@ import java.util.UUID;
 @RequestMapping(path = "/api/user")
 public class UserController {
 
-	private UserService userService;
+	private final ModelMapper modelMapper;
 
-	public UserController(UserService userService) {
+	private final UserService userService;
+
+	public UserController(UserService userService, ModelMapper modelMapper) {
 		this.userService = userService;
+		this.modelMapper = modelMapper;
 	}
 
 	@GetMapping("/{uuid}")
-	public ResponseEntity<User> getUserById(@PathVariable UUID uuid) {
+	public ResponseEntity<UserResponse> getUserById(@PathVariable UUID uuid) {
 		User user = userService.getUserById(uuid);
-		return ResponseEntity.ok(user);
+		UserResponse userResponse = UserResponse.fromUser(user, modelMapper);
+		return ResponseEntity.ok(userResponse);
 	}
 }

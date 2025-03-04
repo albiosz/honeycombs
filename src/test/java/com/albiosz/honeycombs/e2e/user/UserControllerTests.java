@@ -6,6 +6,8 @@ import com.albiosz.honeycombs.auth.response.LoginResponse;
 import com.albiosz.honeycombs.config.exceptions.ErrorResponse;
 import com.albiosz.honeycombs.user.User;
 import com.albiosz.honeycombs.user.UserRepository;
+import com.albiosz.honeycombs.user.dto.UserResponse;
+import com.albiosz.honeycombs.util.JsonSchema;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -24,8 +26,7 @@ import java.util.UUID;
 
 import static com.albiosz.honeycombs.util.Auth.createURLWithPort;
 import static com.albiosz.honeycombs.util.Auth.sendLoginRequest;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = HoneycombsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -95,9 +96,11 @@ public class UserControllerTests {
 	@Test
 	@DisplayName("GET /api/user/{userId} - success")
 	void getUserById() {
-		ResponseEntity<User> response = sendGetUserByIdRequest(user.getId(), User.class);
+		ResponseEntity<String> response = sendGetUserByIdRequest(user.getId(), String.class);
 
-		assertEquals(user.getId(), response.getBody().getId());
+		String jsonSchema = assertDoesNotThrow(() -> JsonSchema.generateJsonSchema(UserResponse.class));
+		boolean isValid = assertDoesNotThrow(() -> JsonSchema.isValidJson(response.getBody(), jsonSchema));
+		assertTrue(isValid);
 	}
 
 	<T> ResponseEntity<T> sendGetUserByIdRequest(UUID userId, Class<T> responseType) {

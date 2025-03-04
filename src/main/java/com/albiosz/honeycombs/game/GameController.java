@@ -1,6 +1,8 @@
 package com.albiosz.honeycombs.game;
 
 
+import com.albiosz.honeycombs.game.dto.GameResponse;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,15 +12,21 @@ import java.util.List;
 @RequestMapping(path = "/api/game")
 public class GameController {
 
+	private final ModelMapper modelMapper;
+
 	private final GameService gameService;
 
-	public GameController(GameService gameService) {
+	public GameController(GameService gameService, ModelMapper modelMapper) {
 		this.gameService = gameService;
+		this.modelMapper = modelMapper;
 	}
 
 	@GetMapping("/{id}")
-	public Game getGameById(@PathVariable long id) {
-		return gameService.getGameById(id);
+	public ResponseEntity<GameResponse> getGameById(@PathVariable long id) {
+		Game game = gameService.getGameById(id);
+		GameResponse gameResponse = GameResponse.fromGame(game, modelMapper);
+		return ResponseEntity.ok(gameResponse);
+
 	}
 
 	@GetMapping
