@@ -24,7 +24,7 @@ I built this application because:
 
 It is possible to play with the API using Interactive Swagger Documentation (instruction below - [How to run?](README.md#how-to-run))
 
-![img.png](img.png)
+![Swagger API Docs](https://github.com/user-attachments/assets/52a6550d-6078-436a-b504-317756a7d5f4)
 
 
 # 🚀 How to run?
