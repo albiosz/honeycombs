@@ -29,11 +29,14 @@ It is possible to play with the API using Interactive Swagger Documentation (ins
 
 # 🚀 How to run?
 1. Clone the repository.
-2. `cd honeycombs-java`
+2. `cd honeycombs`
+3. `cp .env.example .env`
 
 You can run the project in two ways:
-1. With Docker (recommended)
-2. Without Docker
+1. [With Docker (recommended)](README.md#with-docker-recommended)
+2. [Without Docker](./README.md#without-docker)
+
+⚠ **Note: User registration will not work out of the box** because it requires email server credentials.
 
 ## With Docker (recommended)
 
@@ -41,9 +44,8 @@ You can run the project in two ways:
 - docker version 28.0.1 or higher
 
 ### Steps
-1. `cp .env.example .env`
-2. `docker compose up`
-3. Go to [Play with the API](README.md#play-with-the-api) section.
+1. `docker compose up`
+2. Go to [Play with the API](README.md#play-with-the-api) section.
 
 
 ## Without Docker
@@ -55,10 +57,9 @@ You can run the project in two ways:
 
 ### Steps
 1. Run Postgres
-2. `cp .env.example .env`
-3. Set `.env` variables according to your Postgres configuration
-4. `./mvnw spring-boot:run` (Linux/Mac) or `./mvnw.cmd spring-boot:run` (Windows)
-5. Go to [Play with the API](README.md#play-with-the-api) section.
+2. Set `.env` variables according to your Postgres configuration
+3. `./mvnw spring-boot:run` (Linux/Mac) or `./mvnw.cmd spring-boot:run` (Windows)
+4. Go to [Play with the API](README.md#play-with-the-api) section.
 
 ## Play with the API
 1. Open your browser and go to the following link to see the Swagger Documentation:
