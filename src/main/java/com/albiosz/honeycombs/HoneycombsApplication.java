@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Profile;
 public class HoneycombsApplication {
 
 	public static void main(String[] args) {
+		DBCheck dbCheck = new DBCheck();
+		dbCheck.waitUntilDBConnectionIsAvailable();
 		SpringApplication.run(HoneycombsApplication.class, args);
 	}
 

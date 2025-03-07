@@ -15,14 +15,16 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: honeycombs
-    image: honeycombs
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     environment:
       - SERVER_PORT=${SERVER_PORT}
-      - DB_URL=jdbc:postgresql://postgres:${DB_PORT}/${DB_NAME}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=postgres
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_URL=jdbc:postgresql://postgres:${DB_PORT}/${DB_NAME}
       - MAIL_HOST=${MAIL_HOST}
       - MAIL_PORT=${MAIL_PORT}
       - MAIL_USERNAME=${MAIL_USERNAME}
