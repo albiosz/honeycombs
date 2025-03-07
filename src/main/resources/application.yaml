@@ -36,6 +36,7 @@ security:
 server:
   error:
     include-message: always
+  port: ${SERVER_PORT}
 
 logging:
   level:
