@@ -38,10 +38,18 @@ server:
     include-message: always
   port: ${SERVER_PORT}
 
-logging:
-  level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
+# Configuration replaced with logback-spring.xml
+#logging:
+#  level:
+#    root: WARN
+#    org.hibernate.SQL: DEBUG # allows to show SQL queries in the console
+#    org.hibernate.orm.jdbc.bind: TRACE # allows to show bound values to `?` in the SQL queries
+#  include-application-name: false
+#  file:
+#    path: logs
+#  logback:
+#    rollingpolicy:
+#      file-name-pattern: ${LOG_FILE}.%d{yyyy-MM-dd}.%i.gz
 
 springdoc:
   api-docs:
